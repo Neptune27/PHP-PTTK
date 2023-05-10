@@ -1,7 +1,6 @@
 DROP DATABASE IF EXISTS QLMH;
 CREATE DATABASE QLMH;
 USE QLMH;
-
 -- MySQL dump 10.13  Distrib 8.0.32, for Linux (x86_64)
 --
 -- Host: localhost    Database: QLMH
@@ -241,12 +240,14 @@ DROP TABLE IF EXISTS `Lop_Hoc_Phan`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `Lop_Hoc_Phan` (
                                 `ID_DSMH` varchar(100) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
+                                `ID_MONHOC` varchar(100) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT NULL,
                                 `SL_SV` int DEFAULT NULL,
                                 `LOP_HOC` varchar(50) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT NULL,
                                 `HOC_KY` int DEFAULT NULL,
                                 `NAM_HOC` varchar(20) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT NULL,
                                 PRIMARY KEY (`ID_DSMH`),
-                                CONSTRAINT `Lop_Hoc_Phan_MonHoc_ID_fk` FOREIGN KEY (`ID_DSMH`) REFERENCES `MonHoc` (`ID`)
+                                KEY `Lop_Hoc_Phan___fk` (`ID_MONHOC`),
+                                CONSTRAINT `Lop_Hoc_Phan___fk` FOREIGN KEY (`ID_MONHOC`) REFERENCES `MonHoc` (`ID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -352,7 +353,7 @@ CREATE TABLE `PhanCongGiangDay` (
                                     PRIMARY KEY (`ID_MON_HOC`,`ID_GIAO_VIEN`),
                                     KEY `PhanCongGiangDay_GiaoVien_ID_fk` (`ID_GIAO_VIEN`),
                                     CONSTRAINT `PhanCongGiangDay_GiaoVien_ID_fk` FOREIGN KEY (`ID_GIAO_VIEN`) REFERENCES `GiaoVien` (`ID`),
-                                    CONSTRAINT `PhanCongGiangDay_MonHoc_ID_fk` FOREIGN KEY (`ID_MON_HOC`) REFERENCES `MonHoc` (`ID`)
+                                    CONSTRAINT `PhanCongGiangDay_Lop_Hoc_Phan_ID_DSMH_fk` FOREIGN KEY (`ID_MON_HOC`) REFERENCES `Lop_Hoc_Phan` (`ID_DSMH`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -536,3 +537,5 @@ UNLOCK TABLES;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
+
+-- Dump completed on 2023-05-10  6:53:20
