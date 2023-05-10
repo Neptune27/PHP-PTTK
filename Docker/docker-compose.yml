@@ -1,0 +1,22 @@
+version: '3.8'
+name: pttk
+services:
+  php:
+    build:
+      dockerfile: Dockerfile
+    depends_on:
+      - db
+    volumes:
+      - ../:/var/www/html/
+      - ./php.ini:/usr/local/etc/php/php.ini
+    ports:
+      - 80:80
+    environment:
+      XDEBUG_CONFIG: remote_host=host.docker.internal
+
+  db:
+    image: mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: gg
+    ports:
+      - 3306:3306
