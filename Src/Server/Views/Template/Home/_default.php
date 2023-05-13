@@ -23,7 +23,27 @@
 <?php
     require_once __DIR__."/_header.php"
 ?>
-<main style="min-height: 100vh; position: relative;">
+
+<style>
+    .main {
+        padding-top: 1rem;
+        width: 60%;
+        margin-inline: auto;
+    }
+    @media (width < 800px) {
+        .main {
+            width: 100%;
+        }
+    }
+
+    @media (width < 1000px) and (width > 800px){
+        .main {
+            width: 80%;
+        }
+    }
+
+</style>
+<main class="main" style="position: relative;">
     <?php
     if (isset($data["Page"])) {
         require_once __DIR__."/../../".$data["View"].$data["Page"].".php";

@@ -21,7 +21,7 @@
                 </li>
 
                 <li>
-                    <a href="/"
+                    <a href="/Home/Timetable"
                        type="button"
                        aria-haspopup="true"
                        aria-expanded="true"
