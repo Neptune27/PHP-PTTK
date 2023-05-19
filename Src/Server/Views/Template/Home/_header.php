@@ -10,34 +10,21 @@
             <ul class="menus" style="z-index: 10">
                 <li><a href="/">Trang chủ</a></li>
                 <li>
-                    <a href="/"
-                       type="button"
-                       aria-haspopup="true"
-                       aria-expanded="true"
-                       aria-controls="dropdown1"
-                    >
+                    <a href="/Home/DKMH" type="button" aria-haspopup="true" aria-expanded="true"
+                        aria-controls="dropdown1">
                         Đăng ký môn học
                     </a>
                 </li>
 
                 <li>
-                    <a href="/Home/Timetable"
-                       type="button"
-                       aria-haspopup="true"
-                       aria-expanded="true"
-                       aria-controls="dropdown1"
-                    >
+                    <a href="/Home/Timetable" type="button" aria-haspopup="true" aria-expanded="true"
+                        aria-controls="dropdown1">
                         Thời khóa biểu
                     </a>
                 </li>
 
                 <li>
-                    <a href="/"
-                       type="button"
-                       aria-haspopup="true"
-                       aria-expanded="true"
-                       aria-controls="dropdown1"
-                    >
+                    <a href="/" type="button" aria-haspopup="true" aria-expanded="true" aria-controls="dropdown1">
                         Thanh toán
                     </a>
                 </li>
