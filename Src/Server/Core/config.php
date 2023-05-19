@@ -1,9 +1,9 @@
 <?php
 
 $config["db"] = [
-    'dbLocation' => 'db',
-    'dbUsername' => 'root',
-    'dbPassword' => 'gg',
+    'dbLocation' => 'localhost',
+    'dbUsername' => 'phpAdmin',
+    'dbPassword' => '',
     'dbDatabaseName' => 'QLMH'
 ];
 
