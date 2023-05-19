@@ -93,6 +93,7 @@ class HomeController extends Controller
 
     
     public function DKMH(){
+        
         $model = $this->model("UserModel");
         if(!empty($_GET["ma"])){
             $ma = $_GET["ma"];
@@ -126,7 +127,7 @@ class HomeController extends Controller
         }
         $data = $model->getData($sql);
         
-        $mssv = "3121560037";
+        $mssv = $_SESSION["user"]["MSSV"];
         
         $sql = "SELECT monhoc.ID,monhoc.TEN,sinhvien_monhoctamthoi.IDHP,monhoc.TIN_CHI,(monhoc.TIN_CHI*khoa.TIEN_1_TIN) as hocPhi
         FROM `sinhvien_monhoctamthoi`
@@ -166,7 +167,7 @@ class HomeController extends Controller
             $model = $this->model("UserModel");
             $data = json_decode(file_get_contents('php://input'), true);
             $id_dsmh = trim($data["id_dsmh"]) ;
-            $mssv = "3121560037";
+            $mssv = $_SESSION["user"]["MSSV"];
             
             $send = array();
             $sql = "SELECT DISTINCT NAM_HOC, HOC_KY
@@ -223,11 +224,25 @@ class HomeController extends Controller
                 $sql = "SELECT *
                 FROM sinhvien_monhoctamthoi
                 INNER JOIN thoigianmonhoc ON thoigianmonhoc.ID_DSMH = sinhvien_monhoctamthoi.IDHP
-                WHERE thoigianmonhoc.THU = ".$thu[$i]." AND thoigianmonhoc.HK = $hk AND thoigianmonhoc.NAM = $nam AND 
+                WHERE thoigianmonhoc.THU = ".$thu[$i]." AND thoigianmonhoc.HK = $hk AND thoigianmonhoc.NAM = $nam  AND sinhvien_monhoctamthoi.MSSV =  '$mssv' AND 
                 (thoigianmonhoc.TIET_BAT_DAU <= ".$tietKT[$i]." AND thoigianmonhoc.TIET_KET_THUC >= ".$tietBD[$i].")";
                 $temp = $model->getData($sql);
                 if(!empty($temp)){
-                    echo $sql;
+                    $send["error"] = "Trung TKB";
+                    $kti = 0;
+                }
+                
+                $sql = "SELECT *
+                FROM sinhvien_lhp 
+                INNER JOIN thoigianmonhoc ON thoigianmonhoc.ID_DSMH = sinhvien_lhp.ID_DSMH
+                WHERE thoigianmonhoc.THU = ".$thu[$i]." AND thoigianmonhoc.HK = $hk AND thoigianmonhoc.NAM = $nam
+                AND sinhvien_lhp.MSSV = '$mssv'  AND
+                (thoigianmonhoc.TIET_BAT_DAU <= ".$tietKT[$i]." AND thoigianmonhoc.TIET_KET_THUC >= ".$tietBD[$i].")";
+                
+                $temp = $model->getData($sql);
+                if(!empty($temp)){
+                    
+                    $send["error"] = "Trung TKB";
                     $kti = 0;
                 }
             }
@@ -261,7 +276,7 @@ class HomeController extends Controller
             $sql = "SELECT * FROM `sinhvien_lhp`
             INNER JOIN lop_hoc_phan on lop_hoc_phan.ID_DSMH = sinhvien_lhp.ID_DSMH
             INNER JOIN monhoc on  monhoc.ID = lop_hoc_phan.ID_MONHOC
-            WHERE monhoc.ID = '$idmh'";
+            WHERE monhoc.ID = '$idmh' AND sinhvien_lhp.MSSV = '$mssv'";
             $temp = $model->getData($sql);
             if(!empty($temp) && empty($send)){
                 $sql = "DELETE FROM `sinhvien_lhp` WHERE ID_DSMH = '$id_dsmh' and MSSV = '$mssv' and HK = $hk and NAM = $nam";
@@ -271,7 +286,7 @@ class HomeController extends Controller
             $sql ="SELECT * FROM `sinhvien_monhoctamthoi`
             INNER JOIN lop_hoc_phan on lop_hoc_phan.ID_DSMH = sinhvien_monhoctamthoi.IDHP
             INNER JOIN monhoc on  monhoc.ID = lop_hoc_phan.ID_MONHOC
-            WHERE monhoc.ID = '$idmh'";
+            WHERE monhoc.ID = '$idmh'  AND sinhvien_monhoctamthoi.MSSV =  '$mssv' ";
             $temp = $model->getData($sql);
             if(!empty($temp) && empty($send)){
                 $sql = "DELETE FROM `sinhvien_monhoctamthoi` WHERE IDHP = '".$temp[0]["IDHP"]."' and MSSV = '$mssv'";
@@ -328,7 +343,7 @@ class HomeController extends Controller
             $model = $this->model("UserModel");
             $data = json_decode(file_get_contents('php://input'), true);
             $id_dsmh = trim($data["id_dsmh"]) ;
-            $mssv = "3121560037";
+            $mssv = $_SESSION["user"]["MSSV"];
 
             $sql = "SELECT DISTINCT NAM_HOC, HOC_KY
             FROM lop_hoc_phan
@@ -398,8 +413,7 @@ class HomeController extends Controller
             $model = $this->model("UserModel");
             $data = json_decode(file_get_contents('php://input'), true);
             $id_dsmh = $data["id_dsmh"] ;
-            $mssv = "3121560037";
-            
+            $mssv = $_SESSION["user"]["MSSV"];            
             $send = array();
             $sql = "SELECT DISTINCT NAM_HOC, HOC_KY
             FROM lop_hoc_phan
@@ -468,7 +482,7 @@ class HomeController extends Controller
             $model = $this->model("UserModel");
             $data = json_decode(file_get_contents('php://input'), true);
             $id_dsmh = $data["id_dsmh"] ;
-            $mssv = "3121560037";
+            $mssv = $_SESSION["user"]["MSSV"];
             
             $send = array();
             $sql = "SELECT DISTINCT NAM_HOC, HOC_KY

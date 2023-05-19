@@ -1,5 +1,9 @@
-<input id="txtTimKiem" type="text">
-<input onclick="timKiem()" type="button" value="Tìm Kiếm">
+<form>
+    <input id="txtTimKiem" name="ma" type="text">
+    <input onclick="timKiem()" type="submit" value="Tìm Kiếm">
+</form>
+
+
 <table class="table table-bordered table-light">
     <thead>
         <tr>
