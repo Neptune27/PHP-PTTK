@@ -3,3 +3,5 @@ Src/Client/mp3
 node_modules
 package-lock.json
 package.json
+tmp/
+Tmp/
