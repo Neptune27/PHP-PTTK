@@ -5,7 +5,7 @@ USE QLMH;
 --
 -- Host: localhost    Database: QLMH
 -- ------------------------------------------------------
--- Server version       8.0.32
+-- Server version	8.0.32
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -29,7 +29,7 @@ CREATE TABLE `ChucVuGV` (
                             `ID` int NOT NULL AUTO_INCREMENT,
                             `TEN` varchar(100) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT NULL,
                             PRIMARY KEY (`ID`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -38,6 +38,7 @@ CREATE TABLE `ChucVuGV` (
 
 LOCK TABLES `ChucVuGV` WRITE;
 /*!40000 ALTER TABLE `ChucVuGV` DISABLE KEYS */;
+INSERT INTO `ChucVuGV` VALUES (1,'ADMIN'),(2,'GV');
 /*!40000 ALTER TABLE `ChucVuGV` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -52,6 +53,8 @@ CREATE TABLE `DanhSachMonDaHoc` (
                                     `ID_MON_HOC` varchar(100) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
                                     `MSSV` varchar(100) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
                                     `DIEM` float DEFAULT NULL,
+                                    `HK` int DEFAULT NULL,
+                                    `Nam` int DEFAULT NULL,
                                     PRIMARY KEY (`ID_MON_HOC`,`MSSV`),
                                     KEY `DanhSachMonDaHoc_SinhVien_MSSV_fk` (`MSSV`),
                                     CONSTRAINT `DanhSachMonDaHoc_MonHoc_ID_fk` FOREIGN KEY (`ID_MON_HOC`) REFERENCES `MonHoc` (`ID`),
@@ -65,6 +68,7 @@ CREATE TABLE `DanhSachMonDaHoc` (
 
 LOCK TABLES `DanhSachMonDaHoc` WRITE;
 /*!40000 ALTER TABLE `DanhSachMonDaHoc` DISABLE KEYS */;
+INSERT INTO `DanhSachMonDaHoc` VALUES ('841020','3121560004',9.3,1,2021),('841021','3121560004',9.4,1,2021),('841303','3121560004',9.2,2,2021),('841401','3121560004',8,1,2021),('841402','3121560004',7.7,1,2021),('841403','3121560004',8.8,1,2021),('841404','3121560004',8.8,2,2021),('841405','3121560004',5.2,2,2021),('866101','3121560004',8,1,2021);
 /*!40000 ALTER TABLE `DanhSachMonDaHoc` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -87,7 +91,7 @@ CREATE TABLE `GiaoVien` (
                             KEY `GiaoVien_Nganh_ID_fk` (`ID_NGANH`),
                             CONSTRAINT `GiaoVien_ChucVuGV_ID_fk` FOREIGN KEY (`ID_CHUC_VU`) REFERENCES `ChucVuGV` (`ID`),
                             CONSTRAINT `GiaoVien_Nganh_ID_fk` FOREIGN KEY (`ID_NGANH`) REFERENCES `Nganh` (`ID`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -96,6 +100,7 @@ CREATE TABLE `GiaoVien` (
 
 LOCK TABLES `GiaoVien` WRITE;
 /*!40000 ALTER TABLE `GiaoVien` DISABLE KEYS */;
+INSERT INTO `GiaoVien` VALUES (2,'Hong Anh','a@b.c','0123456789','DCT',2);
 /*!40000 ALTER TABLE `GiaoVien` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -200,7 +205,7 @@ CREATE TABLE `Khoa` (
 
 LOCK TABLES `Khoa` WRITE;
 /*!40000 ALTER TABLE `Khoa` DISABLE KEYS */;
-INSERT INTO `Khoa` VALUES ('CNTT','Công nghệ thông itn',540000);
+INSERT INTO `Khoa` VALUES ('CHU','Chung',360000),('CNTT','Công nghệ thông itn',540000);
 /*!40000 ALTER TABLE `Khoa` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -242,10 +247,10 @@ CREATE TABLE `Lop_Hoc_Phan` (
                                 `ID_DSMH` varchar(100) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
                                 `ID_MONHOC` varchar(100) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT NULL,
                                 `SL_SV` int DEFAULT NULL,
-                                `LOP_HOC` varchar(50) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT NULL,
-                                `HOC_KY` int DEFAULT NULL,
-                                `NAM_HOC` varchar(20) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT NULL,
-                                PRIMARY KEY (`ID_DSMH`),
+                                `HOC_KY` int NOT NULL,
+                                `NAM_HOC` int NOT NULL,
+                                `NGAY_BAT_DAU` date DEFAULT NULL,
+                                PRIMARY KEY (`ID_DSMH`,`NAM_HOC`,`HOC_KY`),
                                 KEY `Lop_Hoc_Phan___fk` (`ID_MONHOC`),
                                 CONSTRAINT `Lop_Hoc_Phan___fk` FOREIGN KEY (`ID_MONHOC`) REFERENCES `MonHoc` (`ID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
@@ -257,6 +262,7 @@ CREATE TABLE `Lop_Hoc_Phan` (
 
 LOCK TABLES `Lop_Hoc_Phan` WRITE;
 /*!40000 ALTER TABLE `Lop_Hoc_Phan` DISABLE KEYS */;
+INSERT INTO `Lop_Hoc_Phan` VALUES ('841022_8','841022',30,1,2023,'2022-05-09'),('841107_42','841107',60,2,2023,'2023-02-06');
 /*!40000 ALTER TABLE `Lop_Hoc_Phan` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -284,6 +290,7 @@ CREATE TABLE `MonHoc` (
 
 LOCK TABLES `MonHoc` WRITE;
 /*!40000 ALTER TABLE `MonHoc` DISABLE KEYS */;
+INSERT INTO `MonHoc` VALUES ('841020','Cơ sở lập trình',3,'DCT'),('841021','Kiến trúc máy tính',3,'DCT'),('841022','Hệ điều hành',3,'DCT'),('841044','Lập trình hướng đối tượng',4,'DCT'),('841048','P/tích thiết kế hệ thống thông tin',4,'DCT'),('841058','Hệ điều hành mã nguồn mở',3,'DCT'),('841107','Lập trình Java',4,'DCT'),('841108','Cấu trúc dữ liệu và giải thuật',4,'DCT'),('841109','Cơ sở dữ liệu',4,'DCT'),('841303','Kỹ thuật lập trình',4,'DCT'),('841401','Giải tích 1',3,'CHU'),('841402','Đại số tuyến tính',3,'CHU'),('841403','Cấu trúc rời rạc',4,'DCT'),('841404','Mạng máy tính',3,'DCT'),('841405','Xác suất thống kê',3,'CHU'),('841406','Giải tích 2',3,'CHU'),('841419','Lập trình web và ứng dụng',4,'DCT'),('841422','Ngôn ngữ lập trình Python',4,'DCT'),('841464','Lập trình Web và ứng dụng nâng cao',4,'DCT'),('861301','Triết học Mác-Lênin',3,'CHU'),('861302','Kinh tế chính trị Mác-Lênin',2,'CHU'),('861303','Chủ nghĩa xã hội khoa học',2,'CHU'),('862101','Giáo dục thể chất (I)',1,'CHU'),('862406','Giáo dục quốc phòng và an ninh I',3,'CHU'),('862407','Giáo dục quốc phòng và an ninh II',2,'CHU'),('862408','Giáo dục quốc phòng và an ninh III',2,'CHU'),('865006','Pháp luật đại cương',2,'CHU'),('866101','Tiếng Anh I',2,'CHU'),('866102','Tiếng Anh II',2,'CHU');
 /*!40000 ALTER TABLE `MonHoc` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -336,34 +343,8 @@ CREATE TABLE `Nganh` (
 
 LOCK TABLES `Nganh` WRITE;
 /*!40000 ALTER TABLE `Nganh` DISABLE KEYS */;
-INSERT INTO `Nganh` VALUES ('DCT','Công nghệ thông tin','CNTT'),('DKP','Kỹ thuật phần mềm','CNTT');
+INSERT INTO `Nganh` VALUES ('CHU','Chung','CHU'),('DCT','Công nghệ thông tin','CNTT'),('DKP','Kỹ thuật phần mềm','CNTT');
 /*!40000 ALTER TABLE `Nganh` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Table structure for table `PhanCongGiangDay`
---
-
-DROP TABLE IF EXISTS `PhanCongGiangDay`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `PhanCongGiangDay` (
-                                    `ID_MON_HOC` varchar(100) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
-                                    `ID_GIAO_VIEN` int NOT NULL,
-                                    PRIMARY KEY (`ID_MON_HOC`,`ID_GIAO_VIEN`),
-                                    KEY `PhanCongGiangDay_GiaoVien_ID_fk` (`ID_GIAO_VIEN`),
-                                    CONSTRAINT `PhanCongGiangDay_GiaoVien_ID_fk` FOREIGN KEY (`ID_GIAO_VIEN`) REFERENCES `GiaoVien` (`ID`),
-                                    CONSTRAINT `PhanCongGiangDay_Lop_Hoc_Phan_ID_DSMH_fk` FOREIGN KEY (`ID_MON_HOC`) REFERENCES `Lop_Hoc_Phan` (`ID_DSMH`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `PhanCongGiangDay`
---
-
-LOCK TABLES `PhanCongGiangDay` WRITE;
-/*!40000 ALTER TABLE `PhanCongGiangDay` DISABLE KEYS */;
-/*!40000 ALTER TABLE `PhanCongGiangDay` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -381,6 +362,7 @@ CREATE TABLE `SinhVien` (
                             `ID_LOP` varchar(100) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT NULL,
                             `PASSWORD` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT NULL,
                             `NAM_BAT_DAU` int DEFAULT NULL,
+                            `SO_THE_NH` mediumtext,
                             PRIMARY KEY (`MSSV`),
                             KEY `SinhVien_LopHoc_ID_fk` (`ID_LOP`),
                             CONSTRAINT `SinhVien_LopHoc_ID_fk` FOREIGN KEY (`ID_LOP`) REFERENCES `LopHoc` (`ID`)
@@ -393,7 +375,7 @@ CREATE TABLE `SinhVien` (
 
 LOCK TABLES `SinhVien` WRITE;
 /*!40000 ALTER TABLE `SinhVien` DISABLE KEYS */;
-INSERT INTO `SinhVien` VALUES ('3121560004','Võ Minh Trí','a@b.c','0123456789','DKP1212','a',2021);
+INSERT INTO `SinhVien` VALUES ('3121560004','Võ Minh Trí','a@b.c','0123456789','DKP1212','a',2021,NULL);
 /*!40000 ALTER TABLE `SinhVien` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -426,29 +408,58 @@ LOCK TABLES `SinhVien_HocBong` WRITE;
 UNLOCK TABLES;
 
 --
--- Table structure for table `SinhVien_MonHoc`
+-- Table structure for table `SinhVien_LHP`
 --
 
-DROP TABLE IF EXISTS `SinhVien_MonHoc`;
+DROP TABLE IF EXISTS `SinhVien_LHP`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `SinhVien_MonHoc` (
-                                   `MSSV` varchar(100) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
-                                   `ID_DSMH` varchar(100) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
-                                   PRIMARY KEY (`MSSV`,`ID_DSMH`),
-                                   KEY `SinhVien_MonHoc_MonHoc_ID_fk` (`ID_DSMH`),
-                                   CONSTRAINT `SinhVien_MonHoc_MonHoc_ID_fk` FOREIGN KEY (`ID_DSMH`) REFERENCES `MonHoc` (`ID`),
-                                   CONSTRAINT `SinhVien_MonHoc_SinhVien_MSSV_fk` FOREIGN KEY (`MSSV`) REFERENCES `SinhVien` (`MSSV`)
+CREATE TABLE `SinhVien_LHP` (
+                                `MSSV` varchar(100) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
+                                `ID_DSMH` varchar(100) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
+                                `NAM` int NOT NULL,
+                                `HK` int NOT NULL,
+                                PRIMARY KEY (`MSSV`,`ID_DSMH`,`NAM`,`HK`),
+                                KEY `SinhVien_MonHoc_MonHoc_ID_fk` (`ID_DSMH`),
+                                KEY `SinhVien_LHP_Lop_Hoc_Phan_ID_DSMH_NAM_HOC_HOC_KY_fk` (`ID_DSMH`,`NAM`,`HK`),
+                                CONSTRAINT `SinhVien_LHP_Lop_Hoc_Phan_ID_DSMH_NAM_HOC_HOC_KY_fk` FOREIGN KEY (`ID_DSMH`, `NAM`, `HK`) REFERENCES `Lop_Hoc_Phan` (`ID_DSMH`, `NAM_HOC`, `HOC_KY`),
+                                CONSTRAINT `SinhVien_LHP_SinhVien_MSSV_fk` FOREIGN KEY (`MSSV`) REFERENCES `SinhVien` (`MSSV`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Dumping data for table `SinhVien_MonHoc`
+-- Dumping data for table `SinhVien_LHP`
 --
 
-LOCK TABLES `SinhVien_MonHoc` WRITE;
-/*!40000 ALTER TABLE `SinhVien_MonHoc` DISABLE KEYS */;
-/*!40000 ALTER TABLE `SinhVien_MonHoc` ENABLE KEYS */;
+LOCK TABLES `SinhVien_LHP` WRITE;
+/*!40000 ALTER TABLE `SinhVien_LHP` DISABLE KEYS */;
+INSERT INTO `SinhVien_LHP` VALUES ('3121560004','841022_8',2023,1),('3121560004','841107_42',2023,2);
+/*!40000 ALTER TABLE `SinhVien_LHP` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `SinhVien_MonHocTamThoi`
+--
+
+DROP TABLE IF EXISTS `SinhVien_MonHocTamThoi`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `SinhVien_MonHocTamThoi` (
+                                          `MSSV` varchar(100) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
+                                          `IDHP` varchar(100) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
+                                          PRIMARY KEY (`MSSV`,`IDHP`),
+                                          KEY `SinhVien_MonHocTamThoi_Lop_Hoc_Phan_ID_DSMH_fk` (`IDHP`),
+                                          CONSTRAINT `SinhVien_MonHocTamThoi_SinhVien_MSSV_fk` FOREIGN KEY (`MSSV`) REFERENCES `SinhVien` (`MSSV`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `SinhVien_MonHocTamThoi`
+--
+
+LOCK TABLES `SinhVien_MonHocTamThoi` WRITE;
+/*!40000 ALTER TABLE `SinhVien_MonHocTamThoi` DISABLE KEYS */;
+/*!40000 ALTER TABLE `SinhVien_MonHocTamThoi` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -460,12 +471,19 @@ DROP TABLE IF EXISTS `ThoiGianMonHoc`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `ThoiGianMonHoc` (
                                   `ID_DSMH` varchar(100) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
-                                  `TIET_BAT_DAU` int DEFAULT NULL,
+                                  `TIET_BAT_DAU` int NOT NULL,
+                                  `LOP` varchar(100) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
                                   `TIET_KET_THUC` int DEFAULT NULL,
-                                  `TUAN_BAT_DAU` int DEFAULT NULL,
-                                  `TUAN_KET_THUC` int DEFAULT NULL,
-                                  PRIMARY KEY (`ID_DSMH`),
-                                  CONSTRAINT `ThoiGianMonHoc_Lop_Hoc_Phan_ID_DSMH_fk` FOREIGN KEY (`ID_DSMH`) REFERENCES `Lop_Hoc_Phan` (`ID_DSMH`)
+                                  `TUANHOC` varchar(100) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT NULL,
+                                  `ID_GVGD` int DEFAULT NULL,
+                                  `HK` int NOT NULL,
+                                  `NAM` int NOT NULL,
+                                  `THU` int DEFAULT NULL,
+                                  PRIMARY KEY (`ID_DSMH`,`LOP`,`TIET_BAT_DAU`,`HK`,`NAM`),
+                                  KEY `ThoiGianMonHoc_GiaoVien_ID_fk` (`ID_GVGD`),
+                                  KEY `ThoiGianMonHoc_Lop_Hoc_Phan_ID_DSMH_NAM_HOC_HOC_KY_fk` (`ID_DSMH`,`NAM`,`HK`),
+                                  CONSTRAINT `ThoiGianMonHoc_GiaoVien_ID_fk` FOREIGN KEY (`ID_GVGD`) REFERENCES `GiaoVien` (`ID`),
+                                  CONSTRAINT `ThoiGianMonHoc_Lop_Hoc_Phan_ID_DSMH_NAM_HOC_HOC_KY_fk` FOREIGN KEY (`ID_DSMH`, `NAM`, `HK`) REFERENCES `Lop_Hoc_Phan` (`ID_DSMH`, `NAM_HOC`, `HOC_KY`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -475,6 +493,7 @@ CREATE TABLE `ThoiGianMonHoc` (
 
 LOCK TABLES `ThoiGianMonHoc` WRITE;
 /*!40000 ALTER TABLE `ThoiGianMonHoc` DISABLE KEYS */;
+INSERT INTO `ThoiGianMonHoc` VALUES ('841022_8',9,'C.A110',10,'123456789012345',2,1,2023,3),('841022_8',4,'C.E305',5,'123456789012345',2,1,2023,5),('841107_42',1,'C.A110',2,'123456789012345',2,2,2023,2),('841107_42',3,'C.A510',5,'123456789012345',2,2,2023,2);
 /*!40000 ALTER TABLE `ThoiGianMonHoc` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -538,4 +557,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2023-05-10  6:53:20
+-- Dump completed on 2023-05-17 16:45:15

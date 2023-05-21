@@ -11,223 +11,606 @@ class AdminController extends Controller
         $this->view(self::$defaultTemplate, []);
     }
 
-    function SongUpload($params)
-    {
-        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
-            print_r($params);
-            print_r($_GET);
-            print_r($_FILES);
-
-            $target_dir = __DIR__ . "/../../Client/mp3/" . $params[0] . "/" . $params[1] . "/";
-            $target_file = $target_dir . basename($_FILES["song"]["name"]);
-            $uploadOk = 1;
-            $imageFileType = strtolower(pathinfo($target_file, PATHINFO_EXTENSION));
-            if (!file_exists($target_dir)) {
-                mkdir($target_dir, 0777, true);
-            }
-
-            if (file_exists($target_file)) {
-                unlink($target_file);
-            }
-
-            if (move_uploaded_file($_FILES["song"]["tmp_name"], $target_file)) {
-                echo "The file " . htmlspecialchars(basename($_FILES["song"]["name"])) . " has been uploaded.";
-            }
+    function TKB(): void {
+        $q = $_GET["q"] ?? "";
+        $model = $this->model("ThoiGianMonHocModel");
+        $data = $model->get($q);
+        foreach ($data as $index => $item) {
+            $canDelete = $model->canDelete($data[$index]["ID_DSMH"]);
+            $data[$index]+= [
+                "CAN_DELETE" => $canDelete
+            ];
         }
-        if ($_SERVER["REQUEST_METHOD"] === 'DELETE') {
-            print_r($_GET);
-            print_r($params);
-            $a = 2;
+        foreach ($data as $index => $item) {
+            $DSMH = $item["ID_DSMH"];
+            $ID_NHOM = explode("_", $DSMH);
+            $data[$index]["MMH"]= $ID_NHOM[0];
+            $data[$index]["NHOM"]= $ID_NHOM[1];
         }
+
+
+        $this->view(self::$defaultTemplate,[
+            "data" => $data,
+        ]);
     }
 
-    function AddSongPage($params)
-    {
+    function EditTKB($params) {
+        $model = $this->model("ThoiGianMonHocModel");
 
-        $artistModel = $this->model("ArtistModel");
-        $artist = $artistModel->getAllArtist();
+        if (isset($_GET["ID_DSMH"])) {
+            $model->replace($_GET["ID_DSMH"], $_GET["TIET_BAT_DAU"], $_GET["TIET_KET_THUC"], $_GET["LOP"], $_GET["TUANHOC"], $_GET["ID_GVGD"], $_GET["HK"], $_GET["NAM"], $_GET["THU"]);
+            header("Location: /Admin/TKB");
+        }
+        $LHPModel = $this->model("LopHocPhanModel");
+        $lhpData = $LHPModel->getID();
+
+        $gvModel = $this->model("GiaoVienModel");
+        $gvData = $gvModel->getID();
+
         if (!isset($params[0])) {
-            $this->view(self::$defaultTemplate, [
-                "artist" => $artist,
-                "Page" => "SongArtistPage",
-                "Title" => "Ca Sĩ",
+            $this->view(self::$editTemplate, [
+                "Title" => "Thêm thời khóa biểu",
+                "lhp" => $lhpData,
+                "gv" => $gvData
             ]);
             return;
         }
 
-        $albumModel = $this->model("AlbumModel");
-        $albums = $albumModel->GetAllAlbumFrom($params[0]);
-        if (!isset($params[1])) {
-//            Thêm phân trang tại đây
+        $data = $model->getCustom($params[0],$params[4],$params[3],$params[1],$params[2])[0];
 
-            $this->view(self::$defaultTemplate, [
-                "Albums" => $albums,
-                "Page" => "SongAlbumPage",
-                "artist" => $artist,
-                "Title" => "Albums"
+        $DSMH = $data["ID_DSMH"];
+        $ID_NHOM = explode("_", $DSMH);
+        $data["MMH"]= $ID_NHOM[0];
+        $data["NHOM"]= $ID_NHOM[1];
 
+        array_unshift($lhpData, [
+            "ID" => $data["ID_DSMH"]
+        ]);
 
-            ]);
-            return;
-        }
-
-        $songModel = $this->model("SongModel");
-        if (!isset($params[2])) {
-            $query = "";
-            if (isset($_GET["q"])) {
-                $query = $_GET["q"];
-            }
-            $page = 1;
-            if (isset($_GET["p"])) {
-                $val = $_GET["p"];
-                if (is_numeric($val)) {
-                    $page = $val;
-                }
-            }
-
-            $totalSongQR = $songModel->getTotalSongFromAlbum($params[1], $query);
-            $totalSong = $totalSongQR[0]["TOTAL_PAGE"];
-            if ($totalSong == 0) {
-                $totalSong = 1;
-            }
-            $totalPage = floor($totalSong / 20);
-            if ($totalSong % 20 !== 0) {
-                $totalPage += 1;
-            }
-
-            if ($page > $totalPage) {
-                $secondCond = "";
-                if ($query !== "") {
-                    $secondCond = "?q={$query}";
-                }
-                header("Location: /Admin/AddSongPage/{$params[0]}/{$params[1]}{$secondCond}");
-            }
-
-            $song = $songModel->GetSongs($params[1], $query, ($page-1)*20);
-
-            $this->view(self::$defaultTemplate, [
-                "Songs" => $song,
-                "Page" => "SongSongPage",
-                "Albums" => $albums,
-                "artist" => $artist,
-                "totalPage" => $totalPage,
-                "page" => $page,
-                "query" => $query,
-                "Title" => "Bài hát"
-            ]);
-            return;
-        }
+        array_unshift($gvData, [
+            "ID" => $data["ID_GVGD"]
+        ]);
 
 
-        $isAddNew = $params[2] === "0";
 
-        $song = $songModel->getSong($params[2]);
+        $lhpData = array_unique($lhpData, SORT_REGULAR);
+        $gvData = array_unique($gvData, SORT_REGULAR);
+
         $this->view(self::$editTemplate, [
-            "Page" => "SongEditPage",
-            "Song" => $song,
-            "Albums" => $albums,
-            "artist" => $artist,
-            "isAddNew" => $isAddNew,
+            "Title" => "Chỉnh lớp học phần",
+            "lhp" => $lhpData,
+            "tkb" => $data,
+            "gv" => $gvData
+        ]);
+
+    }
+
+    function DeleteTKB($params): void {
+        $id = $params[0];
+        $model = $this->model("ThoiGianMonHocModel");
+        $model->deleteCustom($params[0],$params[4],$params[3],$params[1],$params[2]);
+        header("Location: /Admin/TKB");
+    }
+
+
+
+    function LopHocPhan(): void {
+        $q = $_GET["q"] ?? "";
+        $model = $this->model("LopHocPhanModel");
+        $data = $model->get($q);
+        foreach ($data as $index => $item) {
+            $canDelete = $model->canDelete($data[$index]["ID_DSMH"]);
+            $data[$index]+= [
+                "CAN_DELETE" => $canDelete
+            ];
+        }
+        foreach ($data as $index => $item) {
+            $DSMH = $item["ID_DSMH"];
+            $ID_NHOM = explode("_", $DSMH);
+            $data[$index]["MMH"]= $ID_NHOM[0];
+            $data[$index]["NHOM"]= $ID_NHOM[1];
+        }
+
+
+        $this->view(self::$defaultTemplate,[
+            "data" => $data,
+        ]);
+    }
+
+    function EditLopHocPhan($params) {
+        $model = $this->model("LopHocPhanModel");
+
+        if (isset($_GET["ID_MONHOC"])) {
+            $model->replace($_GET["ID_MONHOC"]."_".$_GET["NHOM"], $_GET["ID_MONHOC"], $_GET["SL_SV"], $_GET["HOC_KY"], $_GET["NAM_HOC"], $_GET["NGAY_BAT_DAU"]);
+            header("Location: /Admin/LopHocPhan");
+        }
+        $monModel = $this->model("MonModel");
+        $monData = $monModel->getID();
+
+        if (!isset($params[0])) {
+            $this->view(self::$editTemplate, [
+                "Title" => "Thêm lớp học phần",
+                "mon" => $monData,
+            ]);
+            return;
+        }
+
+        $data = $model->get($params[0])[0];
+
+        $DSMH = $data["ID_DSMH"];
+        $ID_NHOM = explode("_", $DSMH);
+        $data["MMH"]= $ID_NHOM[0];
+        $data["NHOM"]= $ID_NHOM[1];
+
+        array_unshift($monData, [
+            "ID" => $data["MMH"]
+        ]);
+
+
+
+        $monData = array_unique($monData, SORT_REGULAR);
+
+        if (!isset($params[0])) {
+            $this->view(self::$editTemplate, [
+                "Title" => "Chỉnh lớp học phần",
+                "mon" => $monData,
+            ]);
+            return;
+        }
+
+        $this->view(self::$editTemplate, [
+            "Title" => "Chỉnh lớp học phần",
+            "mon" => $monData,
+            "lhp" => $data
+        ]);
+
+    }
+
+    function DeleteLopHocPhan($params): void {
+        $id = $params[0];
+        $model = $this->model("MonModel");
+        $model->delete($id);
+        header("Location: /Admin/LopHocPhan");
+    }
+
+
+
+    function MonTienQuyet(): void {
+        $q = $_GET["q"] ?? "";
+        $model = $this->model("MonTienQuyetModel");
+        $data = $model->get($q);
+        foreach ($data as $index => $item) {
+            $canDelete = $model->canDelete($data[$index]["ID_MON_HOC"]);
+            $data[$index]+= [
+                "CAN_DELETE" => $canDelete
+            ];
+        }
+        $this->view(self::$defaultTemplate,[
+            "data" => $data,
+        ]);
+    }
+
+    function EditMonTienQuyet($params) {
+        $model = $this->model("MonTienQuyetModel");
+
+        if (isset($_GET["ID_MON_HOC"])) {
+            $model->replace($_GET["ID_MON_HOC"], $_GET["ID_MON_HOC_TRUOC"]);
+            header("Location: /Admin/MonTienQuyet");
+        }
+        $monModel = $this->model("MonModel");
+        $monData1 = $monModel->getID();
+        $monData2 = $monModel->getID();
+
+        if (!isset($params[0])) {
+            $this->view(self::$editTemplate, [
+                "Title" => "Thêm môn tiên quyết",
+                "mon" => $monData1,
+                "monTruoc" => $monData2,
+            ]);
+            return;
+        }
+
+        $data = $model->get($params[0])[0];
+
+
+
+        array_unshift($monData1, [
+            "ID" => $data["ID_MON_HOC"]
+        ]);
+
+        array_unshift($monData2, [
+            "ID" => $data["ID_MON_HOC_TRUOC"]
+        ]);
+
+        $monData1 = array_unique($monData1, SORT_REGULAR);
+        $monData2 = array_unique($monData2, SORT_REGULAR);
+
+
+
+        if (!isset($params[0])) {
+            $this->view(self::$editTemplate, [
+                "Title" => "Chỉnh môn tiên quyết",
+                "mon" => $monData1,
+                "monTruoc" => $monData2,
+            ]);
+            return;
+        }
+
+
+
+
+        $this->view(self::$editTemplate, [
+            "Title" => "Chỉnh môn tiên quyết",
+            "mon" => $monData1,
+            "monTruoc" => $monData2,
 
         ]);
 
     }
 
-    function AlterSong($params)
-    {
-        if ($_REQUEST["METHOD"] = "POST") {
-            $entityBody = file_get_contents('php://input');
-            $val = json_decode($entityBody);
-            $loc = "/Src/Client/mp3/" . $params[0] . "/" . $params[1] . "/" . $val->fileName;
-
-
-            $songModel = $this->model("SongModel");
-            if ($params[2] === "0") {
-                $songModel->addSong($val->songName, $loc, $val->duration, json_encode($val->lyrics), $params[1], $params[0]);
-            }
-            else {
-                $songModel->alterSong($val->songName, $loc, $val->duration, json_encode($val->lyrics), $params[1], $params[0], $params[2]);
-            }
-
-        }
+    function DeleteMonTienQuyet($params): void {
+        $id = $params[0];
+        $model = $this->model("MonModel");
+        $model->delete($id);
+        header("Location: /Admin/GiaoVien");
     }
 
 
 
-//    Action cho them nghệ sĩ
-    function AddArtist($params) {
-        if (isset($params[0]) && $params[0] == "Add") {
-//            Đủ thông tin để insert into
-            $artistModel = $this->model("ArtistModel");
-
-            $artistName = $_POST['artistName'];
-            $artistAvatar = $_POST['artistAvatar'];
-            $artistGender = $_POST['artistGender'];
-            $artistDOB = $_POST['artistDOB'];
-            $artistVerify = $_POST['artistVerify'];
-            $artistCountry = $_POST['artistCountry'];
-            $artistEmail = $_POST['artistEmail'];
-            $artistType = $_POST['artistType'];
-            $artistListener = $_POST['artistListener'];
-
-            $artistModel->addArtist($artistName, $artistAvatar, $artistGender,
-                $artistDOB, $artistVerify, $artistCountry,
-                $artistEmail, $artistType, $artistListener);
-
-            return;
+    function GiaoVien(): void {
+        $q = $_GET["q"] ?? "";
+        $model = $this->model("GiaoVienModel");
+        $data = $model->get($q);
+        foreach ($data as $index => $item) {
+            $canDelete = $model->canDelete($data[$index]["ID"]);
+            $data[$index]+= [
+                "CAN_DELETE" => $canDelete
+            ];
         }
-        $this->view(self::$editTemplate, [
-            "Page" => "ArtistAddPage",
+        $this->view(self::$defaultTemplate,[
+            "data" => $data,
         ]);
     }
 
-//    Action để sửa nghệ sĩ
-    function EditArtist($params) {
-        $artistModel = $this->model("ArtistModel");
-        if (isset($params[0]) && $params[0] == "Edit") {
-//            Đủ thông tin để update
-            $artistID = $_POST['artistID'];
-            $artistName = $_POST['artistName'];
-            $artistAvatar = $_POST['artistAvatar'];
-            $artistGender = $_POST['artistGender'];
-            $artistDOB = $_POST['artistDOB'];
-            $artistVerify = $_POST['artistVerify'];
-            $artistCountry = $_POST['artistCountry'];
-            $artistEmail = $_POST['artistEmail'];
-            $artistType = $_POST['artistType'];
-            $artistListener = $_POST['artistListener'];
+    function EditGiaoVien($params) {
+        $model = $this->model("GiaoVienModel");
 
-            $artistModel->editArtist($artistID, $artistName, $artistAvatar,
-                $artistGender, $artistDOB, $artistVerify,
-                $artistCountry, $artistEmail, $artistType, $artistListener);
+        if (isset($_GET["ID"])) {
+            $model->replace($_GET["ID"], $_GET["TEN"], $_GET["EMAIL"], $_GET["PHONE"], $_GET["ID_NGANH"], $_GET["ID_CHUC_VU"]);
+            header("Location: /Admin/GiaoVien");
+        }
 
+        $nganhModel = $this->model("NganhModel");
+        $nganhData = $nganhModel->getID();
+
+        $cvModel = $this->model("CVModel");
+        $cvData = $cvModel->getID();
+
+        if (!isset($params[0])) {
+            $this->view(self::$editTemplate, [
+                "Title" => "Thêm giáo viên",
+                "nganh" => $nganhData,
+                "cv" => $cvData
+            ]);
             return;
         }
 
-        $artistID = $params[0];
-        $artistInfo = $artistModel->getDetailArtistInfo($artistID);
+        $data = $model->get($params[0])[0];
+        array_unshift($nganhData, [
+            "ID" => $data["ID_NGANH"]
+        ]);
+
+        $nganhData = array_unique($nganhData, SORT_REGULAR);
+
         $this->view(self::$editTemplate, [
-            "Page" => "ArtistEditPage",
-            "artist" => $artistInfo,
-            "artistID" => $artistID,
+            "Title" => "Chỉnh giáo viên",
+            "giaoVien" => $data,
+            "nganh" => $nganhData,
+            "cv" => $cvData
+        ]);
+
+    }
+
+    function DeleteGiaoVien($params): void {
+        $id = $params[0];
+        $model = $this->model("MonModel");
+        $model->delete($id);
+        header("Location: /Admin/GiaoVien");
+    }
+
+
+
+    function SinhVien(): void {
+        $q = $_GET["q"] ?? "";
+        $model = $this->model("SinhVienModel");
+        $data = $model->get($q);
+        foreach ($data as $index => $item) {
+            $canDelete = $model->canDelete($data[$index]["MSSV"]);
+            $data[$index]+= [
+                "CAN_DELETE" => $canDelete
+            ];
+        }
+        $this->view(self::$defaultTemplate,[
+            "data" => $data,
         ]);
     }
 
-//    Action de xoa nghe si
-    function DeleteArtist($params) {
-        if (isset($params[0])) {
-            $artistModel = $this->model("ArtistModel");
-            $artistModel->deleteArtist($params[0]);
+    function EditSinhVien($params) {
+        $model = $this->model("SinhVienModel");
+
+        if (isset($_GET["MSSV"])) {
+            $model->replace($_GET["MSSV"], $_GET["HO_TEN"], $_GET["EMAIL"], $_GET["PHONE"], $_GET["ID_LOP"], $_GET["NAM_BAT_DAU"], $_GET["SO_THE_NH"]);
+            header("Location: /Admin/SinhVien");
         }
+
+        $lopModel = $this->model("LopModel");
+        $lopData = $lopModel->getID();
+
+
+        if (!isset($params[0])) {
+            $this->view(self::$editTemplate, [
+                "Title" => "Thêm sinh viên",
+                "lop" => $lopData,
+            ]);
+            return;
+        }
+
+        $data = $model->get($params[0])[0];
+        array_unshift($lopData, [
+            "ID" => $data["ID_LOP"]
+        ]);
+
+        $lopData = array_unique($lopData, SORT_REGULAR);
+
+        $this->view(self::$editTemplate, [
+            "Title" => "Chỉnh sinh viên",
+            "sinhVien" => $data,
+            "lop" => $lopData,
+        ]);
+
     }
 
-//    Action de lay du lieu nghe si tim kiem theo ten
-    function GetArtistByName() {
-        if (isset($_POST['artistName'])) {
-            $artistModel = $this->model("ArtistModel");
-            $res = ['artists' => $artistModel->getArtistByName($_POST['artistName'])];
-            echo json_encode($res);
+    function DeleteSinhVien($params): void {
+        $id = $params[0];
+        $model = $this->model("SinhVienModel");
+        $model->delete($id);
+        header("Location: /Admin/SinhVien");
+    }
+
+    function ResetSinhVien($params): void {
+        $id = $params[0];
+        $model = $this->model("SinhVienModel");
+        $model->reset($id);
+        header("Location: /Admin/SinhVien");
+    }
+
+
+
+
+    function Mon(): void {
+        $q = $_GET["q"] ?? "";
+        $model = $this->model("MonModel");
+        $data = $model->get($q);
+        foreach ($data as $index => $item) {
+            $canDelete = $model->canDelete($data[$index]["ID"]);
+            $data[$index]+= [
+                "CAN_DELETE" => $canDelete
+            ];
         }
+        $this->view(self::$defaultTemplate,[
+            "data" => $data,
+        ]);
+    }
+
+    function EditMon($params) {
+        $model = $this->model("MonModel");
+
+        if (isset($_GET["ID"])) {
+            $model->replace($_GET["ID"], $_GET["TEN"], $_GET["ID_NGANH"], $_GET["TIN_CHI"]);
+            header("Location: /Admin/Mon");
+        }
+
+
+        $nganhModel = $this->model("NganhModel");
+        $nganhData = $nganhModel->getID();
+        if (!isset($params[0])) {
+            $this->view(self::$editTemplate, [
+                "Title" => "Thêm lớp",
+                "nganh" => $nganhData
+            ]);
+            return;
+        }
+
+        $data = $model->get($params[0])[0];
+        array_unshift($nganhData, [
+            "ID" => $data["ID_NGANH"]
+        ]);
+
+        $nganhData = array_unique($nganhData, SORT_REGULAR);
+
+//        print_r($nganhData);
+        $this->view(self::$editTemplate, [
+            "Title" => "Chỉnh lớp",
+            "mon" => $data,
+            "nganh" => $nganhData
+        ]);
+
+    }
+
+    function DeleteMon($params): void {
+        $id = $params[0];
+        $model = $this->model("MonModel");
+        $model->delete($id);
+        header("Location: /Admin/Mon");
+    }
+
+
+
+
+    function Lop(): void {
+        $q = $_GET["q"] ?? "";
+        $model = $this->model("LopModel");
+        $data = $model->get($q);
+        foreach ($data as $index => $item) {
+            $canDelete = $model->canDelete($data[$index]["ID"]);
+            $data[$index]+= [
+                "CAN_DELETE" => $canDelete
+            ];
+        }
+        $this->view(self::$defaultTemplate,[
+            "data" => $data,
+        ]);
+    }
+
+    function EditLop($params) {
+        $model = $this->model("LopModel");
+
+        if (isset($_GET["ID"])) {
+            $model->replace($_GET["ID"], $_GET["TEN"], $_GET["ID_NGANH"]);
+            header("Location: /Admin/Lop");
+        }
+
+
+        $nganhModel = $this->model("NganhModel");
+        $nganhData = $nganhModel->getID();
+        if (!isset($params[0])) {
+            $this->view(self::$editTemplate, [
+                "Title" => "Chỉnh ngành",
+                "nganh" => $nganhData
+            ]);
+            return;
+        }
+
+        $data = $model->get($params[0])[0];
+        array_unshift($nganhData, [
+            "ID" => $data["ID_NGANH"]
+        ]);
+
+        $nganhData = array_unique($nganhData, SORT_REGULAR);
+
+//        print_r($nganhData);
+        $this->view(self::$editTemplate, [
+            "Title" => "Chỉnh ngành",
+            "lop" => $data,
+            "nganh" => $nganhData
+        ]);
+
+    }
+
+    function DeleteLop($params): void {
+        $id = $params[0];
+        $model = $this->model("LopModel");
+        $model->delete($id);
+        header("Location: /Admin/Lop");
+    }
+
+
+
+
+    function Khoa(): void {
+        $q = $_GET["q"] ?? "";
+        $model = $this->model("KhoaModel");
+        $data = $model->get($q);
+        foreach ($data as $index => $item) {
+            $canDelete = $model->canDelete($data[$index]["ID"]);
+            $data[$index]+= [
+                "CAN_DELETE" => $canDelete
+            ];
+        }
+        $this->view(self::$defaultTemplate,[
+            "data" => $data,
+        ]);
+    }
+
+    function EditKhoa($params) {
+        $model = $this->model("KhoaModel");
+
+        if (isset($_GET["ID"])) {
+            $model->replace($_GET["ID"], $_GET["TEN"], $_GET["TIEN_1_TIN"]);
+            header("Location: /Admin/Khoa");
+        }
+
+
+        if (!isset($params[0])) {
+            $this->view(self::$editTemplate, [
+                "Title" => "Chỉnh ngành",
+            ]);
+            return;
+        }
+
+        $data = $model->get($params[0])[0];
+
+        $this->view(self::$editTemplate, [
+            "Title" => "Chỉnh ngành",
+            "khoa" => $data
+        ]);
+    }
+
+    function DeleteKhoa($params): void {
+        $id = $params[0];
+        $model = $this->model("NganhModel");
+        $model->delete($id);
+        header("Location: /Admin/Nganh");
+    }
+
+
+
+
+    function Nganh(): void {
+        $q = $_GET["q"] ?? "";
+        $model = $this->model("NganhModel");
+        $data = $model->get($q);
+        foreach ($data as $index => $item) {
+            $canDelete = $model->canDelete($data[$index]["ID"]);
+            $data[$index]+= [
+                "CAN_DELETE" => $canDelete
+            ];
+        }
+        $this->view(self::$defaultTemplate,[
+            "data" => $data,
+        ]);
+    }
+
+    function EditNganh($params) {
+        $model = $this->model("NganhModel");
+
+        if (isset($_GET["ID"])) {
+            $model->replace($_GET["ID"], $_GET["TEN"], $_GET["ID_KHOA"]);
+            header("Location: /Admin/Nganh");
+        }
+
+
+        $khoaModel = $this->model("KhoaModel");
+        $khoaData = $khoaModel->getID();
+        if (!isset($params[0])) {
+            $this->view(self::$editTemplate, [
+                "Title" => "Chỉnh ngành",
+                "khoa" => $khoaData
+            ]);
+            return;
+        }
+
+        $khoaModel = $this->model("KhoaModel");
+        $khoaData = $khoaModel->getID();
+
+        $data = $model->get($params[0])[0];
+        array_unshift($khoaData, [
+            "ID" => $data["ID_KHOA"]
+        ]);
+        $khoaData = array_unique($khoaData, SORT_REGULAR);
+
+        $this->view(self::$editTemplate, [
+            "Title" => "Chỉnh ngành",
+            "nganh" => $data,
+            "khoa" => $khoaData
+        ]);
+    }
+
+    function DeleteNganh($params): void {
+        $id = $params[0];
+        $model = $this->model("NganhModel");
+        $model->delete($id);
+        header("Location: /Admin/Nganh");
     }
 }
