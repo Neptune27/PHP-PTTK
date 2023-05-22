@@ -3,6 +3,7 @@
 class HomeController extends Controller
 {
     public string $homeTemplate = "Home/_default";
+    public string $editTemplate = "Home/_edit";
     public string $signTemplate = "signDefault";
 
 
@@ -38,7 +39,7 @@ class HomeController extends Controller
         $model = $this->model("UserModel");
 
         $queryHK = <<<HUH
-        SELECT DISTINCT HK, NAM FROM SinhVien_LHP WHERE MSSV='3121560004' ORDER BY NAM, HK DESC
+        SELECT DISTINCT HK, NAM FROM SinhVien_LHP WHERE MSSV='{$_SESSION["user"]["MSSV"]}' ORDER BY NAM, HK DESC
         HUH;
         $hk = $model->getData($queryHK);
 
@@ -60,7 +61,7 @@ class HomeController extends Controller
             JOIN Lop_Hoc_Phan LHP on LHP.ID_DSMH = SV.ID_DSMH and LHP.NAM_HOC = SV.NAM and LHP.HOC_KY = SV.HK
             JOIN ThoiGianMonHoc TGMH on LHP.ID_DSMH = TGMH.ID_DSMH and LHP.NAM_HOC = TGMH.NAM and LHP.HOC_KY = TGMH.HK
             LEFT JOIN MonHoc MH on MH.ID = LHP.ID_MONHOC
-        WHERE MSSV='3121560004' AND SV.NAM={$params[0]} AND SV.HK={$params[1]}
+        WHERE MSSV='{$_SESSION["user"]["MSSV"]}' AND SV.NAM={$params[0]} AND SV.HK={$params[1]}
         WUT;
 
         $data = $model->getData($query);
@@ -81,7 +82,7 @@ class HomeController extends Controller
         $model = $this->model("UserModel");
 
         $queryHK = <<<HUH
-        SELECT DISTINCT HK, NAM FROM SinhVien_LHP WHERE MSSV='3121560004' ORDER BY NAM, HK DESC
+        SELECT DISTINCT HK, NAM FROM SinhVien_LHP WHERE MSSV='{$_SESSION["user"]["MSSV"]}' ORDER BY NAM, HK DESC
         HUH;
         $hk = $model->getData($queryHK);
 
@@ -103,7 +104,7 @@ class HomeController extends Controller
             JOIN Lop_Hoc_Phan LHP on LHP.ID_DSMH = SV.ID_DSMH and LHP.NAM_HOC = SV.NAM and LHP.HOC_KY = SV.HK
             JOIN ThoiGianMonHoc TGMH on LHP.ID_DSMH = TGMH.ID_DSMH and LHP.NAM_HOC = TGMH.NAM and LHP.HOC_KY = TGMH.HK
             LEFT JOIN MonHoc MH on MH.ID = LHP.ID_MONHOC
-        WHERE MSSV='3121560004' AND SV.NAM={$params[0]} AND SV.HK={$params[1]}
+        WHERE MSSV='{$_SESSION["user"]["MSSV"]}' AND SV.NAM={$params[0]} AND SV.HK={$params[1]}
         WUT;
 
         $data = $model->getData($query);
@@ -137,7 +138,7 @@ class HomeController extends Controller
 
 
         $sql = "SELECT DISTINCT NAM_HOC, HOC_KY
-        FROM lop_hoc_phan
+        FROM Lop_Hoc_Phan
         ORDER BY NAM_HOC DESC, HOC_KY DESC
         LIMIT 1;
         ";
@@ -147,15 +148,15 @@ class HomeController extends Controller
 
 
         $sql = "SELECT ID_MONHOC,MH.TEN,LHP.ID_DSMH,MH.TIN_CHI,LHP.SL_SV,TGMH.THU,TGMH.TIET_BAT_DAU,
-        TGMH.TIET_KET_THUC,TGMH.LOP,giaovien.TEN as tenGV,TGMH.TUANHOC,COALESCE((LHP.SL_SV - slgDK), LHP.SL_SV) AS conLai  
+        TGMH.TIET_KET_THUC,TGMH.LOP,GiaoVien.TEN as tenGV,TGMH.TUANHOC,COALESCE((LHP.SL_SV - slgDK), LHP.SL_SV) AS conLai  
         FROM Lop_Hoc_Phan LHP
         JOIN ThoiGianMonHoc TGMH on LHP.ID_DSMH = TGMH.ID_DSMH and LHP.NAM_HOC = TGMH.NAM and LHP.HOC_KY = TGMH.HK
-        JOIN giaovien on TGMH.ID_GVGD = giaovien.ID
+        JOIN GiaoVien on TGMH.ID_GVGD = GiaoVien.ID
         LEFT JOIN MonHoc MH on MH.ID = LHP.ID_MONHOC
         LEFT JOIN (
             SELECT ID_DSMH,COUNT(ID_DSMH) as slgDK
-            FROM sinhvien_lhp
-            WHERE sinhvien_lhp.NAM = $nam and sinhvien_lhp.HK = $hk
+            FROM SinhVien_LHP
+            WHERE SinhVien_LHP.NAM = $nam and SinhVien_LHP.HK = $hk GROUP BY ID_DSMH
         ) AS svlhp on svlhp.ID_DSMH = LHP.ID_DSMH
         WHERE TGMH.HK = $hk and TGMH.NAM = $nam ";
         if(!empty($ma)){
@@ -165,27 +166,27 @@ class HomeController extends Controller
 
         $mssv = $_SESSION["user"]["MSSV"];
 
-        $sql = "SELECT monhoc.ID,monhoc.TEN,sinhvien_monhoctamthoi.IDHP,monhoc.TIN_CHI,(monhoc.TIN_CHI*khoa.TIEN_1_TIN) as hocPhi
-        FROM `sinhvien_monhoctamthoi`
-        INNER JOIN lop_hoc_phan on lop_hoc_phan.ID_DSMH = IDHP
-        INNER JOIN monhoc on monhoc.ID = lop_hoc_phan.ID_MONHOC
-        INNER JOIN sinhvien on sinhvien.MSSV = sinhvien_monhoctamthoi.MSSV
-        INNER JOIN lophoc on sinhvien.ID_LOP = lophoc.ID
-        INNER JOIN nganh on lophoc.ID_NGANH = nganh.ID
-        INNER JOIN khoa on khoa.ID = nganh.ID_KHOA
-        WHERE sinhvien_monhoctamthoi.MSSV = '$mssv'";
+        $sql = "SELECT MonHoc.ID,MonHoc.TEN,SinhVien_MonHocTamThoi.IDHP,MonHoc.TIN_CHI,(MonHoc.TIN_CHI*Khoa.TIEN_1_TIN) as hocPhi
+        FROM `SinhVien_MonHocTamThoi`
+        INNER JOIN Lop_Hoc_Phan on Lop_Hoc_Phan.ID_DSMH = IDHP
+        INNER JOIN MonHoc on MonHoc.ID = Lop_Hoc_Phan.ID_MONHOC
+        INNER JOIN SinhVien on SinhVien.MSSV = SinhVien_MonHocTamThoi.MSSV
+        INNER JOIN LopHoc on SinhVien.ID_LOP = LopHoc.ID
+        INNER JOIN Nganh on LopHoc.ID_NGANH = Nganh.ID
+        INNER JOIN Khoa on Khoa.ID = Nganh.ID_KHOA
+        WHERE SinhVien_MonHocTamThoi.MSSV = '$mssv'";
 
         $dsMHDK = $model->getData($sql);
 
-        $sql = "SELECT monhoc.ID,monhoc.TEN,sinhvien_lhp.ID_DSMH,monhoc.TIN_CHI,(monhoc.TIN_CHI*khoa.TIEN_1_TIN) as hocPhi
-        FROM `sinhvien_lhp` 
-        INNER JOIN lop_hoc_phan on lop_hoc_phan.ID_DSMH = sinhvien_lhp.ID_DSMH
-        INNER JOIN monhoc on monhoc.ID = lop_hoc_phan.ID_MONHOC
-        INNER JOIN sinhvien on sinhvien.MSSV = sinhvien_lhp.MSSV
-        INNER JOIN lophoc on sinhvien.ID_LOP = lophoc.ID
-        INNER JOIN nganh on lophoc.ID_NGANH = nganh.ID
-        INNER JOIN khoa on khoa.ID = nganh.ID_KHOA
-        WHERE sinhvien_lhp.MSSV = '$mssv'  AND sinhvien_lhp.NAM = $nam AND sinhvien_lhp.HK = $hk ";
+        $sql = "SELECT MonHoc.ID,MonHoc.TEN,SinhVien_LHP.ID_DSMH,MonHoc.TIN_CHI,(MonHoc.TIN_CHI*Khoa.TIEN_1_TIN) as hocPhi
+        FROM `SinhVien_LHP` 
+        INNER JOIN Lop_Hoc_Phan on Lop_Hoc_Phan.ID_DSMH = SinhVien_LHP.ID_DSMH
+        INNER JOIN MonHoc on MonHoc.ID = Lop_Hoc_Phan.ID_MONHOC
+        INNER JOIN SinhVien on SinhVien.MSSV = SinhVien_LHP.MSSV
+        INNER JOIN LopHoc on SinhVien.ID_LOP = LopHoc.ID
+        INNER JOIN Nganh on LopHoc.ID_NGANH = Nganh.ID
+        INNER JOIN Khoa on Khoa.ID = Nganh.ID_KHOA
+        WHERE SinhVien_LHP.MSSV = '$mssv'  AND SinhVien_LHP.NAM = $nam AND SinhVien_LHP.HK = $hk ";
         $dsMHDL = $model->getData($sql);
 
         $this->view($this->homeTemplate, [
@@ -207,7 +208,7 @@ class HomeController extends Controller
 
             $send = array();
             $sql = "SELECT DISTINCT NAM_HOC, HOC_KY
-            FROM lop_hoc_phan
+            FROM Lop_Hoc_Phan
             ORDER BY NAM_HOC DESC, HOC_KY DESC
             LIMIT 1;
             ";
@@ -217,10 +218,10 @@ class HomeController extends Controller
 
 
             //LẤY THÔNG TIN VỀ MÔN HỌC
-            $sql = "SELECT * FROM `lop_hoc_phan` 
-            INNER JOIN thoigianmonhoc on thoigianmonhoc.ID_DSMH = lop_hoc_phan.ID_DSMH 
-            INNER JOIN monhoc on lop_hoc_phan.ID_MONHOC = monhoc.id 
-            WHERE lop_hoc_phan.ID_DSMH = '$id_dsmh'";
+            $sql = "SELECT * FROM `Lop_Hoc_Phan` 
+            INNER JOIN ThoiGianMonHoc on ThoiGianMonHoc.ID_DSMH = Lop_Hoc_Phan.ID_DSMH 
+            INNER JOIN MonHoc on Lop_Hoc_Phan.ID_MONHOC = MonHoc.id 
+            WHERE Lop_Hoc_Phan.ID_DSMH = '$id_dsmh'";
             $mh = $model->getData($sql);
 
             $idmh = $mh[0]["ID"];
@@ -239,14 +240,14 @@ class HomeController extends Controller
 
             $kti = 1;
 
-            $sql  = "SELECT * FROM `montienquyet` WHERE ID_MON_HOC = '$idmh'";
+            $sql  = "SELECT * FROM `MonTienQuyet` WHERE ID_MON_HOC = '$idmh'";
             $temp = $model->getData($sql);
 
             if(!empty($temp)){
                 $id_mht = $temp[0]["ID_MON_HOC_TRUOC"];
-                $sql = "SELECT * FROM `sinhvien_lhp` 
-                INNER JOIN lop_hoc_phan on sinhvien_lhp.ID_DSMH = lop_hoc_phan.ID_DSMH
-                WHERE  MSSV = '$mssv' AND lop_hoc_phan.ID_MONHOC = '$idmh' AND (NAM = !2023 or HK != 2) ";
+                $sql = "SELECT * FROM `SinhVien_LHP` 
+                INNER JOIN Lop_Hoc_Phan on SinhVien_LHP.ID_DSMH = Lop_Hoc_Phan.ID_DSMH
+                WHERE  MSSV = '$mssv' AND Lop_Hoc_Phan.ID_MONHOC = '$idmh' AND (NAM = !2023 or HK != 2) ";
                 $t = $model->getData($sql);
                 if(empty($t)){
                     $send["error"] = "Can hoc mon tien quyet ";
@@ -258,10 +259,10 @@ class HomeController extends Controller
             for($i=0;$i<count($tietBD);$i++){
 
                 $sql = "SELECT *
-                FROM sinhvien_monhoctamthoi
-                INNER JOIN thoigianmonhoc ON thoigianmonhoc.ID_DSMH = sinhvien_monhoctamthoi.IDHP
-                WHERE thoigianmonhoc.THU = ".$thu[$i]." AND thoigianmonhoc.HK = $hk AND thoigianmonhoc.NAM = $nam  AND sinhvien_monhoctamthoi.MSSV =  '$mssv' AND 
-                (thoigianmonhoc.TIET_BAT_DAU <= ".$tietKT[$i]." AND thoigianmonhoc.TIET_KET_THUC >= ".$tietBD[$i].")";
+                FROM SinhVien_MonHocTamThoi
+                INNER JOIN ThoiGianMonHoc ON ThoiGianMonHoc.ID_DSMH = SinhVien_MonHocTamThoi.IDHP
+                WHERE ThoiGianMonHoc.THU = ".$thu[$i]." AND ThoiGianMonHoc.HK = $hk AND ThoiGianMonHoc.NAM = $nam  AND SinhVien_MonHocTamThoi.MSSV =  '$mssv' AND 
+                (ThoiGianMonHoc.TIET_BAT_DAU <= ".$tietKT[$i]." AND ThoiGianMonHoc.TIET_KET_THUC >= ".$tietBD[$i].")";
                 $temp = $model->getData($sql);
                 if(!empty($temp)){
                     $send["error"] = "Trung TKB";
@@ -269,11 +270,11 @@ class HomeController extends Controller
                 }
 
                 $sql = "SELECT *
-                FROM sinhvien_lhp 
-                INNER JOIN thoigianmonhoc ON thoigianmonhoc.ID_DSMH = sinhvien_lhp.ID_DSMH
-                WHERE thoigianmonhoc.THU = ".$thu[$i]." AND thoigianmonhoc.HK = $hk AND thoigianmonhoc.NAM = $nam
-                AND sinhvien_lhp.MSSV = '$mssv'  AND
-                (thoigianmonhoc.TIET_BAT_DAU <= ".$tietKT[$i]." AND thoigianmonhoc.TIET_KET_THUC >= ".$tietBD[$i].")";
+                FROM SinhVien_LHP 
+                INNER JOIN ThoiGianMonHoc ON ThoiGianMonHoc.ID_DSMH = SinhVien_LHP.ID_DSMH
+                WHERE ThoiGianMonHoc.THU = ".$thu[$i]." AND ThoiGianMonHoc.HK = $hk AND ThoiGianMonHoc.NAM = $nam
+                AND SinhVien_LHP.MSSV = '$mssv'  AND
+                (ThoiGianMonHoc.TIET_BAT_DAU <= ".$tietKT[$i]." AND ThoiGianMonHoc.TIET_KET_THUC >= ".$tietBD[$i].")";
 
                 $temp = $model->getData($sql);
                 if(!empty($temp)){
@@ -284,10 +285,10 @@ class HomeController extends Controller
             }
 
             //KIỂM TRA TÍN CHỈ TỐI ĐA
-            $sql = "SELECT IFNULL(sum(monhoc.TIN_CHI), 0) as soTC FROM `sinhvien_lhp` 
-            INNER JOIN lop_hoc_phan on lop_hoc_phan.ID_DSMH = sinhvien_lhp.ID_DSMH
-            INNER JOIN monhoc on monhoc.ID = lop_hoc_phan.ID_MONHOC
-            WHERE sinhvien_lhp.MSSV = '$mssv'";
+            $sql = "SELECT IFNULL(sum(MonHoc.TIN_CHI), 0) as soTC FROM `SinhVien_LHP` 
+            INNER JOIN Lop_Hoc_Phan on Lop_Hoc_Phan.ID_DSMH = SinhVien_LHP.ID_DSMH
+            INNER JOIN MonHoc on MonHoc.ID = Lop_Hoc_Phan.ID_MONHOC
+            WHERE SinhVien_LHP.MSSV = '$mssv'";
             $temp = $model->getData($sql);
             $soTC = $temp[0]["soTC"];
             if (!empty($soTC) && $soTC+$tc >26) {
@@ -295,10 +296,10 @@ class HomeController extends Controller
                 $kti = 0;
             }
 
-            $sql = "SELECT IFNULL(sum(monhoc.TIN_CHI), 0) as soTC FROM sinhvien_monhoctamthoi 
-            INNER JOIN lop_hoc_phan on lop_hoc_phan.ID_DSMH = sinhvien_monhoctamthoi.IDHP
-            INNER JOIN monhoc on monhoc.ID = lop_hoc_phan.ID_MONHOC
-            WHERE sinhvien_monhoctamthoi.MSSV = '$mssv'";
+            $sql = "SELECT IFNULL(sum(MonHoc.TIN_CHI), 0) as soTC FROM SinhVien_MonHocTamThoi 
+            INNER JOIN Lop_Hoc_Phan on Lop_Hoc_Phan.ID_DSMH = SinhVien_MonHocTamThoi.IDHP
+            INNER JOIN MonHoc on MonHoc.ID = Lop_Hoc_Phan.ID_MONHOC
+            WHERE SinhVien_MonHocTamThoi.MSSV = '$mssv'";
             $temp = $model->getData($sql);
             $soTC = $temp[0]["soTC"];
             if (!empty($soTC) && $soTC+$tc >26) {
@@ -309,56 +310,56 @@ class HomeController extends Controller
 
             //kIỂM TRA TRÙNG MÃ HP THÌ TỰ ĐỘNG THAY THẾ
 
-            $sql = "SELECT * FROM `sinhvien_lhp`
-            INNER JOIN lop_hoc_phan on lop_hoc_phan.ID_DSMH = sinhvien_lhp.ID_DSMH
-            INNER JOIN monhoc on  monhoc.ID = lop_hoc_phan.ID_MONHOC
-            WHERE monhoc.ID = '$idmh' AND sinhvien_lhp.MSSV = '$mssv'";
+            $sql = "SELECT * FROM `SinhVien_LHP`
+            INNER JOIN Lop_Hoc_Phan on Lop_Hoc_Phan.ID_DSMH = SinhVien_LHP.ID_DSMH
+            INNER JOIN MonHoc on  MonHoc.ID = Lop_Hoc_Phan.ID_MONHOC
+            WHERE MonHoc.ID = '$idmh' AND SinhVien_LHP.MSSV = '$mssv'";
             $temp = $model->getData($sql);
             if(!empty($temp) && empty($send)){
-                $sql = "DELETE FROM `sinhvien_lhp` WHERE ID_DSMH = '$id_dsmh' and MSSV = '$mssv' and HK = $hk and NAM = $nam";
+                $sql = "DELETE FROM `SinhVien_LHP` WHERE ID_DSMH = '$id_dsmh' and MSSV = '$mssv' and HK = $hk and NAM = $nam";
                 $model->update($sql);
             }
 
-            $sql ="SELECT * FROM `sinhvien_monhoctamthoi`
-            INNER JOIN lop_hoc_phan on lop_hoc_phan.ID_DSMH = sinhvien_monhoctamthoi.IDHP
-            INNER JOIN monhoc on  monhoc.ID = lop_hoc_phan.ID_MONHOC
-            WHERE monhoc.ID = '$idmh'  AND sinhvien_monhoctamthoi.MSSV =  '$mssv' ";
+            $sql ="SELECT * FROM `SinhVien_MonHocTamThoi`
+            INNER JOIN Lop_Hoc_Phan on Lop_Hoc_Phan.ID_DSMH = SinhVien_MonHocTamThoi.IDHP
+            INNER JOIN MonHoc on  MonHoc.ID = Lop_Hoc_Phan.ID_MONHOC
+            WHERE MonHoc.ID = '$idmh'  AND SinhVien_MonHocTamThoi.MSSV =  '$mssv' ";
             $temp = $model->getData($sql);
             if(!empty($temp) && empty($send)){
-                $sql = "DELETE FROM `sinhvien_monhoctamthoi` WHERE IDHP = '".$temp[0]["IDHP"]."' and MSSV = '$mssv'";
+                $sql = "DELETE FROM `SinhVien_MonHocTamThoi` WHERE IDHP = '".$temp[0]["IDHP"]."' and MSSV = '$mssv'";
                 $model->update($sql);
             }
 
 
 
             if(empty($send) && $kti == 1){
-                $sql = "INSERT INTO `sinhvien_monhoctamthoi`(`MSSV`, `IDHP`) VALUES ('$mssv','$id_dsmh')";
+                $sql = "INSERT INTO `SinhVien_MonHocTamThoi`(`MSSV`, `IDHP`) VALUES ('$mssv','$id_dsmh')";
 
                 $model->update($sql);
             }
 
-            $sql = "SELECT monhoc.ID,monhoc.TEN,sinhvien_monhoctamthoi.IDHP,monhoc.TIN_CHI,(monhoc.TIN_CHI*khoa.TIEN_1_TIN) as hocPhi
-            FROM `sinhvien_monhoctamthoi`
-            INNER JOIN lop_hoc_phan on lop_hoc_phan.ID_DSMH = sinhvien_monhoctamthoi.IDHP
-            INNER JOIN monhoc on monhoc.ID = lop_hoc_phan.ID_MONHOC
-            INNER JOIN sinhvien on sinhvien.MSSV = sinhvien_monhoctamthoi.MSSV
-            INNER JOIN lophoc on sinhvien.ID_LOP = lophoc.ID
-            INNER JOIN nganh on lophoc.ID_NGANH = nganh.ID
-            INNER JOIN khoa on khoa.ID = nganh.ID_KHOA
-            WHERE sinhvien_monhoctamthoi.MSSV = '$mssv'";
+            $sql = "SELECT MonHoc.ID,MonHoc.TEN,SinhVien_MonHocTamThoi.IDHP,MonHoc.TIN_CHI,(MonHoc.TIN_CHI*Khoa.TIEN_1_TIN) as hocPhi
+            FROM `SinhVien_MonHocTamThoi`
+            INNER JOIN Lop_Hoc_Phan on Lop_Hoc_Phan.ID_DSMH = SinhVien_MonHocTamThoi.IDHP
+            INNER JOIN MonHoc on MonHoc.ID = Lop_Hoc_Phan.ID_MONHOC
+            INNER JOIN SinhVien on SinhVien.MSSV = SinhVien_MonHocTamThoi.MSSV
+            INNER JOIN LopHoc on SinhVien.ID_LOP = LopHoc.ID
+            INNER JOIN Nganh on LopHoc.ID_NGANH = Nganh.ID
+            INNER JOIN Khoa on Khoa.ID = Nganh.ID_KHOA
+            WHERE SinhVien_MonHocTamThoi.MSSV = '$mssv'";
 
             $dsMHDK = $model->getData($sql);
 
 
-            $sql = "SELECT monhoc.ID,monhoc.TEN,sinhvien_lhp.ID_DSMH,monhoc.TIN_CHI,(monhoc.TIN_CHI*khoa.TIEN_1_TIN) as hocPhi
-            FROM `sinhvien_lhp` 
-            INNER JOIN lop_hoc_phan on lop_hoc_phan.ID_DSMH = sinhvien_lhp.ID_DSMH
-            INNER JOIN monhoc on monhoc.ID = lop_hoc_phan.ID_MONHOC
-            INNER JOIN sinhvien on sinhvien.MSSV = sinhvien_lhp.MSSV
-            INNER JOIN lophoc on sinhvien.ID_LOP = lophoc.ID
-            INNER JOIN nganh on lophoc.ID_NGANH = nganh.ID
-            INNER JOIN khoa on khoa.ID = nganh.ID_KHOA
-            WHERE sinhvien_lhp.MSSV = '$mssv' AND sinhvien_lhp.NAM = $nam AND sinhvien_lhp.HK = $hk ";
+            $sql = "SELECT MonHoc.ID,MonHoc.TEN,SinhVien_LHP.ID_DSMH,MonHoc.TIN_CHI,(MonHoc.TIN_CHI*Khoa.TIEN_1_TIN) as hocPhi
+            FROM `SinhVien_LHP` 
+            INNER JOIN Lop_Hoc_Phan on Lop_Hoc_Phan.ID_DSMH = SinhVien_LHP.ID_DSMH
+            INNER JOIN MonHoc on MonHoc.ID = Lop_Hoc_Phan.ID_MONHOC
+            INNER JOIN SinhVien on SinhVien.MSSV = SinhVien_LHP.MSSV
+            INNER JOIN LopHoc on SinhVien.ID_LOP = LopHoc.ID
+            INNER JOIN Nganh on LopHoc.ID_NGANH = Nganh.ID
+            INNER JOIN Khoa on Khoa.ID = Nganh.ID_KHOA
+            WHERE SinhVien_LHP.MSSV = '$mssv' AND SinhVien_LHP.NAM = $nam AND SinhVien_LHP.HK = $hk ";
             $dsMHDL = $model->getData($sql);
 
             $send["dsmhdk"] = $dsMHDK;
@@ -382,7 +383,7 @@ class HomeController extends Controller
             $mssv = $_SESSION["user"]["MSSV"];
 
             $sql = "SELECT DISTINCT NAM_HOC, HOC_KY
-            FROM lop_hoc_phan
+            FROM Lop_Hoc_Phan
             ORDER BY NAM_HOC DESC, HOC_KY DESC
             LIMIT 1;
             ";
@@ -390,44 +391,44 @@ class HomeController extends Controller
             $nam =  $hk_nam[0]["NAM_HOC"];
             $hk =  $hk_nam[0]["HOC_KY"];
 
-            $sql = "SELECT * FROM `sinhvien_monhoctamthoi` WHERE MSSV = '$mssv' and IDHP = '$id_dsmh'";
+            $sql = "SELECT * FROM `SinhVien_MonHocTamThoi` WHERE MSSV = '$mssv' and IDHP = '$id_dsmh'";
 
             $temp = $model->getData($sql);
 
 
             if(!empty($temp)){
-                $sql = "DELETE FROM `sinhvien_monhoctamthoi` WHERE MSSV = '$mssv' and IDHP = '$id_dsmh'";
+                $sql = "DELETE FROM `SinhVien_MonHocTamThoi` WHERE MSSV = '$mssv' and IDHP = '$id_dsmh'";
                 $model->update($sql);
             }
             else{
-                $sql = "DELETE FROM `sinhvien_lhp` WHERE MSSV = '$mssv' and ID_DSMH = '$id_dsmh'";
+                $sql = "DELETE FROM `SinhVien_LHP` WHERE MSSV = '$mssv' and ID_DSMH = '$id_dsmh'";
                 $model->update($sql);
             }
 
             $send = array();
 
-            $sql = "SELECT monhoc.ID,monhoc.TEN,sinhvien_monhoctamthoi.IDHP,monhoc.TIN_CHI,(monhoc.TIN_CHI*khoa.TIEN_1_TIN) as hocPhi
-            FROM `sinhvien_monhoctamthoi`
-            INNER JOIN lop_hoc_phan on lop_hoc_phan.ID_DSMH = sinhvien_monhoctamthoi.IDHP
-            INNER JOIN monhoc on monhoc.ID = lop_hoc_phan.ID_MONHOC
-            INNER JOIN sinhvien on sinhvien.MSSV = sinhvien_monhoctamthoi.MSSV
-            INNER JOIN lophoc on sinhvien.ID_LOP = lophoc.ID
-            INNER JOIN nganh on lophoc.ID_NGANH = nganh.ID
-            INNER JOIN khoa on khoa.ID = nganh.ID_KHOA
-            WHERE sinhvien_monhoctamthoi.MSSV = '$mssv'";
+            $sql = "SELECT MonHoc.ID,MonHoc.TEN,SinhVien_MonHocTamThoi.IDHP,MonHoc.TIN_CHI,(MonHoc.TIN_CHI*Khoa.TIEN_1_TIN) as hocPhi
+            FROM `SinhVien_MonHocTamThoi`
+            INNER JOIN Lop_Hoc_Phan on Lop_Hoc_Phan.ID_DSMH = SinhVien_MonHocTamThoi.IDHP
+            INNER JOIN MonHoc on MonHoc.ID = Lop_Hoc_Phan.ID_MONHOC
+            INNER JOIN SinhVien on SinhVien.MSSV = SinhVien_MonHocTamThoi.MSSV
+            INNER JOIN LopHoc on SinhVien.ID_LOP = LopHoc.ID
+            INNER JOIN Nganh on LopHoc.ID_NGANH = Nganh.ID
+            INNER JOIN Khoa on Khoa.ID = Nganh.ID_KHOA
+            WHERE SinhVien_MonHocTamThoi.MSSV = '$mssv'";
 
             $dsMHDK = $model->getData($sql);
 
 
-            $sql = "SELECT monhoc.ID,monhoc.TEN,sinhvien_lhp.ID_DSMH,monhoc.TIN_CHI,(monhoc.TIN_CHI*khoa.TIEN_1_TIN) as hocPhi
-            FROM `sinhvien_lhp` 
-            INNER JOIN lop_hoc_phan on lop_hoc_phan.ID_DSMH = sinhvien_lhp.ID_DSMH
-            INNER JOIN monhoc on monhoc.ID = lop_hoc_phan.ID_MONHOC
-            INNER JOIN sinhvien on sinhvien.MSSV = sinhvien_lhp.MSSV
-            INNER JOIN lophoc on sinhvien.ID_LOP = lophoc.ID
-            INNER JOIN nganh on lophoc.ID_NGANH = nganh.ID
-            INNER JOIN khoa on khoa.ID = nganh.ID_KHOA
-            WHERE sinhvien_lhp.MSSV = '$mssv'  AND sinhvien_lhp.NAM = $nam AND sinhvien_lhp.HK = $hk ";
+            $sql = "SELECT MonHoc.ID,MonHoc.TEN,SinhVien_LHP.ID_DSMH,MonHoc.TIN_CHI,(MonHoc.TIN_CHI*Khoa.TIEN_1_TIN) as hocPhi
+            FROM `SinhVien_LHP` 
+            INNER JOIN Lop_Hoc_Phan on Lop_Hoc_Phan.ID_DSMH = SinhVien_LHP.ID_DSMH
+            INNER JOIN MonHoc on MonHoc.ID = Lop_Hoc_Phan.ID_MONHOC
+            INNER JOIN SinhVien on SinhVien.MSSV = SinhVien_LHP.MSSV
+            INNER JOIN LopHoc on SinhVien.ID_LOP = LopHoc.ID
+            INNER JOIN Nganh on LopHoc.ID_NGANH = Nganh.ID
+            INNER JOIN Khoa on Khoa.ID = Nganh.ID_KHOA
+            WHERE SinhVien_LHP.MSSV = '$mssv'  AND SinhVien_LHP.NAM = $nam AND SinhVien_LHP.HK = $hk ";
             $dsMHDL = $model->getData($sql);
 
             $send["dsmhdk"] = $dsMHDK;
@@ -452,7 +453,7 @@ class HomeController extends Controller
             $mssv = $_SESSION["user"]["MSSV"];
             $send = array();
             $sql = "SELECT DISTINCT NAM_HOC, HOC_KY
-            FROM lop_hoc_phan
+            FROM Lop_Hoc_Phan
             ORDER BY NAM_HOC DESC, HOC_KY DESC
             LIMIT 1;
             ";
@@ -462,43 +463,43 @@ class HomeController extends Controller
 
             for($i=0;$i<count($id_dsmh);$i++){
                 $id = $id_dsmh[$i];
-                $sql = "INSERT INTO `sinhvien_lhp`(`MSSV`, `ID_DSMH`, `NAM`, `HK`) 
+                $sql = "INSERT INTO `SinhVien_LHP`(`MSSV`, `ID_DSMH`, `NAM`, `HK`) 
                     VALUES ('$mssv','$id','$nam','$hk')";
                 $model->update($sql);
 
-                $sql = "SELECT SL_SV FROM `lop_hoc_phan` WHERE ID_DSMH = '$id'";
+                $sql = "SELECT SL_SV FROM `Lop_Hoc_Phan` WHERE ID_DSMH = '$id'";
                 $t = $model->getData($sql);
                 $slg = $t[0]["SL_SV"]-1;
 
-                $sql = "UPDATE `lop_hoc_phan` SET `SL_SV`= $slg WHERE ID_DSMH = '$id'";
+                $sql = "UPDATE `Lop_Hoc_Phan` SET `SL_SV`= $slg WHERE ID_DSMH = '$id'";
 
 
-                $sql = "DELETE FROM `sinhvien_monhoctamthoi` WHERE IDHP = '$id' AND MSSV = '$mssv'";
+                $sql = "DELETE FROM `SinhVien_MonHocTamThoi` WHERE IDHP = '$id' AND MSSV = '$mssv'";
                 $model->update($sql);
             }
 
-            $sql = "SELECT monhoc.ID,monhoc.TEN,sinhvien_monhoctamthoi.IDHP,monhoc.TIN_CHI,(monhoc.TIN_CHI*khoa.TIEN_1_TIN) as hocPhi
-            FROM `sinhvien_monhoctamthoi`
-            INNER JOIN lop_hoc_phan on lop_hoc_phan.ID_DSMH = sinhvien_monhoctamthoi.IDHP
-            INNER JOIN monhoc on monhoc.ID = lop_hoc_phan.ID_MONHOC
-            INNER JOIN sinhvien on sinhvien.MSSV = sinhvien_monhoctamthoi.MSSV
-            INNER JOIN lophoc on sinhvien.ID_LOP = lophoc.ID
-            INNER JOIN nganh on lophoc.ID_NGANH = nganh.ID
-            INNER JOIN khoa on khoa.ID = nganh.ID_KHOA
-            WHERE sinhvien_monhoctamthoi.MSSV = '$mssv'";
+            $sql = "SELECT MonHoc.ID,MonHoc.TEN,SinhVien_MonHocTamThoi.IDHP,MonHoc.TIN_CHI,(MonHoc.TIN_CHI*Khoa.TIEN_1_TIN) as hocPhi
+            FROM `SinhVien_MonHocTamThoi`
+            INNER JOIN Lop_Hoc_Phan on Lop_Hoc_Phan.ID_DSMH = SinhVien_MonHocTamThoi.IDHP
+            INNER JOIN MonHoc on MonHoc.ID = Lop_Hoc_Phan.ID_MONHOC
+            INNER JOIN SinhVien on SinhVien.MSSV = SinhVien_MonHocTamThoi.MSSV
+            INNER JOIN LopHoc on SinhVien.ID_LOP = LopHoc.ID
+            INNER JOIN Nganh on LopHoc.ID_NGANH = Nganh.ID
+            INNER JOIN Khoa on Khoa.ID = Nganh.ID_KHOA
+            WHERE SinhVien_MonHocTamThoi.MSSV = '$mssv'";
 
             $dsMHDK = $model->getData($sql);
 
 
-            $sql = "SELECT monhoc.ID,monhoc.TEN,sinhvien_lhp.ID_DSMH,monhoc.TIN_CHI,(monhoc.TIN_CHI*khoa.TIEN_1_TIN) as hocPhi
-            FROM `sinhvien_lhp` 
-            INNER JOIN lop_hoc_phan on lop_hoc_phan.ID_DSMH = sinhvien_lhp.ID_DSMH
-            INNER JOIN monhoc on monhoc.ID = lop_hoc_phan.ID_MONHOC
-            INNER JOIN sinhvien on sinhvien.MSSV = sinhvien_lhp.MSSV
-            INNER JOIN lophoc on sinhvien.ID_LOP = lophoc.ID
-            INNER JOIN nganh on lophoc.ID_NGANH = nganh.ID
-            INNER JOIN khoa on khoa.ID = nganh.ID_KHOA
-            WHERE sinhvien_lhp.MSSV = '$mssv'  AND sinhvien_lhp.NAM = $nam AND sinhvien_lhp.HK = $hk ";
+            $sql = "SELECT MonHoc.ID,MonHoc.TEN,SinhVien_LHP.ID_DSMH,MonHoc.TIN_CHI,(MonHoc.TIN_CHI*Khoa.TIEN_1_TIN) as hocPhi
+            FROM `SinhVien_LHP` 
+            INNER JOIN Lop_Hoc_Phan on Lop_Hoc_Phan.ID_DSMH = SinhVien_LHP.ID_DSMH
+            INNER JOIN MonHoc on MonHoc.ID = Lop_Hoc_Phan.ID_MONHOC
+            INNER JOIN SinhVien on SinhVien.MSSV = SinhVien_LHP.MSSV
+            INNER JOIN LopHoc on SinhVien.ID_LOP = LopHoc.ID
+            INNER JOIN Nganh on LopHoc.ID_NGANH = Nganh.ID
+            INNER JOIN Khoa on Khoa.ID = Nganh.ID_KHOA
+            WHERE SinhVien_LHP.MSSV = '$mssv'  AND SinhVien_LHP.NAM = $nam AND SinhVien_LHP.HK = $hk ";
             $dsMHDL = $model->getData($sql);
 
             $send["dsmhdk"] = $dsMHDK;
@@ -522,7 +523,7 @@ class HomeController extends Controller
 
             $send = array();
             $sql = "SELECT DISTINCT NAM_HOC, HOC_KY
-            FROM lop_hoc_phan
+            FROM Lop_Hoc_Phan
             ORDER BY NAM_HOC DESC, HOC_KY DESC
             LIMIT 1;
             ";
@@ -532,41 +533,41 @@ class HomeController extends Controller
 
             for($i=0;$i<count($id_dsmh);$i++){
                 $id = $id_dsmh[$i];
-                $sql = "SELECT * FROM `sinhvien_monhoctamthoi` WHERE MSSV = '$mssv' and IDHP = '$id'";
+                $sql = "SELECT * FROM `SinhVien_MonHocTamThoi` WHERE MSSV = '$mssv' and IDHP = '$id'";
 
                 $temp = $model->getData($sql);
                 if(!empty($temp)){
-                    $sql = "DELETE FROM `sinhvien_monhoctamthoi` WHERE MSSV = '$mssv' and IDHP = '$id'";
+                    $sql = "DELETE FROM `SinhVien_MonHocTamThoi` WHERE MSSV = '$mssv' and IDHP = '$id'";
                     $model->update($sql);
                 }
                 else{
-                    $sql = "DELETE FROM `sinhvien_lhp` WHERE MSSV = '$mssv' and ID_DSMH = '$id'";
+                    $sql = "DELETE FROM `SinhVien_LHP` WHERE MSSV = '$mssv' and ID_DSMH = '$id'";
                     $model->update($sql);
                 }
             }
 
-            $sql = "SELECT monhoc.ID,monhoc.TEN,sinhvien_monhoctamthoi.IDHP,monhoc.TIN_CHI,(monhoc.TIN_CHI*khoa.TIEN_1_TIN) as hocPhi
-            FROM `sinhvien_monhoctamthoi`
-            INNER JOIN lop_hoc_phan on lop_hoc_phan.ID_DSMH = sinhvien_monhoctamthoi.IDHP
-            INNER JOIN monhoc on monhoc.ID = lop_hoc_phan.ID_MONHOC
-            INNER JOIN sinhvien on sinhvien.MSSV = sinhvien_monhoctamthoi.MSSV
-            INNER JOIN lophoc on sinhvien.ID_LOP = lophoc.ID
-            INNER JOIN nganh on lophoc.ID_NGANH = nganh.ID
-            INNER JOIN khoa on khoa.ID = nganh.ID_KHOA
-            WHERE sinhvien_monhoctamthoi.MSSV = '$mssv'";
+            $sql = "SELECT MonHoc.ID,MonHoc.TEN,SinhVien_MonHocTamThoi.IDHP,MonHoc.TIN_CHI,(MonHoc.TIN_CHI*Khoa.TIEN_1_TIN) as hocPhi
+            FROM `SinhVien_MonHocTamThoi`
+            INNER JOIN Lop_Hoc_Phan on Lop_Hoc_Phan.ID_DSMH = SinhVien_MonHocTamThoi.IDHP
+            INNER JOIN MonHoc on MonHoc.ID = Lop_Hoc_Phan.ID_MONHOC
+            INNER JOIN SinhVien on SinhVien.MSSV = SinhVien_MonHocTamThoi.MSSV
+            INNER JOIN LopHoc on SinhVien.ID_LOP = LopHoc.ID
+            INNER JOIN Nganh on LopHoc.ID_NGANH = Nganh.ID
+            INNER JOIN Khoa on Khoa.ID = Nganh.ID_KHOA
+            WHERE SinhVien_MonHocTamThoi.MSSV = '$mssv'";
 
             $dsMHDK = $model->getData($sql);
 
 
-            $sql = "SELECT monhoc.ID,monhoc.TEN,sinhvien_lhp.ID_DSMH,monhoc.TIN_CHI,(monhoc.TIN_CHI*khoa.TIEN_1_TIN) as hocPhi
-            FROM `sinhvien_lhp` 
-            INNER JOIN lop_hoc_phan on lop_hoc_phan.ID_DSMH = sinhvien_lhp.ID_DSMH
-            INNER JOIN monhoc on monhoc.ID = lop_hoc_phan.ID_MONHOC
-            INNER JOIN sinhvien on sinhvien.MSSV = sinhvien_lhp.MSSV
-            INNER JOIN lophoc on sinhvien.ID_LOP = lophoc.ID
-            INNER JOIN nganh on lophoc.ID_NGANH = nganh.ID
-            INNER JOIN khoa on khoa.ID = nganh.ID_KHOA
-            WHERE sinhvien_lhp.MSSV = '$mssv'  AND sinhvien_lhp.NAM = $nam AND sinhvien_lhp.HK = $hk ";
+            $sql = "SELECT MonHoc.ID,MonHoc.TEN,SinhVien_LHP.ID_DSMH,MonHoc.TIN_CHI,(MonHoc.TIN_CHI*Khoa.TIEN_1_TIN) as hocPhi
+            FROM `SinhVien_LHP` 
+            INNER JOIN Lop_Hoc_Phan on Lop_Hoc_Phan.ID_DSMH = SinhVien_LHP.ID_DSMH
+            INNER JOIN MonHoc on MonHoc.ID = Lop_Hoc_Phan.ID_MONHOC
+            INNER JOIN SinhVien on SinhVien.MSSV = SinhVien_LHP.MSSV
+            INNER JOIN LopHoc on SinhVien.ID_LOP = LopHoc.ID
+            INNER JOIN Nganh on LopHoc.ID_NGANH = Nganh.ID
+            INNER JOIN Khoa on Khoa.ID = Nganh.ID_KHOA
+            WHERE SinhVien_LHP.MSSV = '$mssv'  AND SinhVien_LHP.NAM = $nam AND SinhVien_LHP.HK = $hk ";
             $dsMHDL = $model->getData($sql);
 
             $send["dsmhdk"] = $dsMHDK;
@@ -578,6 +579,223 @@ class HomeController extends Controller
 
         }
 
+    }
+
+
+
+    public function HocPhi()
+    {
+        $model = $this->model("UserModel");
+
+        $queryHK = <<<HUH
+        SELECT DISTINCT HK, NAM FROM SinhVien_LHP WHERE MSSV='{$_SESSION["user"]["MSSV"]}' ORDER BY NAM, HK DESC
+        HUH;
+        $hk = $model->getData($queryHK);
+
+        if (!isset($params[0]) || !isset($params[1])) {
+            $params[0] = $hk[0]["NAM"];
+            $params[1] = $hk[0]["HK"];
+        }
+
+        array_unshift($hk, [
+            "HK" => $params[1],
+            "NAM" => $params[0]
+        ]);
+
+        $hk = array_unique($hk, SORT_REGULAR);
+
+
+        $query = <<<WUT
+        SELECT ID_MONHOC, MH.TEN, TIN_CHI FROM SinhVien_LHP SVL
+        LEFT JOIN Lop_Hoc_Phan LHP on LHP.ID_DSMH = SVL.ID_DSMH and LHP.NAM_HOC = SVL.NAM and LHP.HOC_KY = SVL.HK
+        LEFT JOIN MonHoc MH on MH.ID = LHP.ID_MONHOC
+        LEFT JOIN Nganh N on N.ID = MH.ID_NGANH
+        LEFT JOIN Khoa K on K.ID = N.ID_KHOA WHERE SVL.HK='{$params[1]}' AND SVL.NAM='{$params[0]}'
+        AND MSSV={$_SESSION["user"]["MSSV"]}
+        WUT;
+
+        $data = $model->getData($query);
+        foreach ($data as $index => $item) {
+            $data[$index]["MMH"] = $item["ID_MONHOC"];
+            $data[$index]["TENMH"] = $item["TEN"];
+            $data[$index]["TINCHI"] = $item["TIN_CHI"];
+        }
+
+
+        $queryStatus = <<<WUT
+        SELECT * FROM HocPhi
+        WHERE MSSV='{$_SESSION["user"]["MSSV"]}' 
+        WUT;
+
+        $status = $model->getData($queryStatus);
+
+
+        $statusMessage = "";
+        if (!empty($status)) {
+            $statusValue = $status[0]['ID_TRANG_THAI'];
+            if ($statusValue == 1) {
+                $statusMessage = "Đang chờ xử lý";
+            } else if ($statusValue == 3) {
+                $statusMessage = "Thành công";
+            } else {
+                $statusMessage = "Thất bại";
+            }
+        } else {
+            $statusMessage = "Chưa thanh toán";
+        }
+
+
+        $this->view($this->homeTemplate, [
+            "DSMH" => $data,
+            "TT_MESSAGE" => $statusMessage,
+            "HK" => $hk
+        ]);
+    }
+
+
+
+
+    public function ThanhToan()
+    {
+        $model = $this->model("UserModel");
+
+        $queryHK = <<<HUH
+        SELECT DISTINCT HK, NAM FROM SinhVien_LHP WHERE MSSV='{$_SESSION["user"]["MSSV"]}' ORDER BY NAM, HK DESC
+        HUH;
+        $hk = $model->getData($queryHK);
+
+        if (!isset($params[0]) || !isset($params[1])) {
+            $params[0] = $hk[0]["NAM"];
+            $params[1] = $hk[0]["HK"];
+        }
+
+        array_unshift($hk, [
+            "HK" => $params[1],
+            "NAM" => $params[0]
+        ]);
+
+        $hk = array_unique($hk, SORT_REGULAR);
+
+
+        $query = <<<WUT
+        SELECT ID_MONHOC, MH.TEN, TIN_CHI FROM SinhVien_LHP SVL
+        LEFT JOIN Lop_Hoc_Phan LHP on LHP.ID_DSMH = SVL.ID_DSMH and LHP.NAM_HOC = SVL.NAM and LHP.HOC_KY = SVL.HK
+        LEFT JOIN MonHoc MH on MH.ID = LHP.ID_MONHOC
+        LEFT JOIN Nganh N on N.ID = MH.ID_NGANH
+        LEFT JOIN Khoa K on K.ID = N.ID_KHOA WHERE SVL.HK='{$params[1]}' AND SVL.NAM='{$params[0]}' 
+        AND  MSSV='{$_SESSION["user"]["MSSV"]}'
+        WUT;
+
+        $data = $model->getData($query);
+        foreach ($data as $index => $item) {
+            $data[$index]["MMH"] = $item["ID_MONHOC"];
+            $data[$index]["TENMH"] = $item["TEN"];
+            $data[$index]["TINCHI"] = $item["TIN_CHI"];
+        }
+
+
+        $this->view($this->homeTemplate, [
+            "DSMH" => $data,
+            "HK" => $hk
+        ]);
+    }
+
+    public function XNTT()
+    {
+        $model = $this->model("UserModel");
+
+        $queryHK = <<<HUH
+        SELECT DISTINCT HK, NAM FROM SinhVien_LHP WHERE MSSV='{$_SESSION["user"]["MSSV"]}' ORDER BY NAM, HK DESC
+        HUH;
+        $hk = $model->getData($queryHK);
+
+        if (!isset($params[0]) || !isset($params[1])) {
+            $params[0] = $hk[0]["NAM"];
+            $params[1] = $hk[0]["HK"];
+        }
+
+        array_unshift($hk, [
+            "HK" => $params[1],
+            "NAM" => $params[0]
+        ]);
+
+        $hk = array_unique($hk, SORT_REGULAR);
+
+
+        $query = <<<WUT
+        SELECT ID_MONHOC, MH.TEN, TIN_CHI FROM SinhVien_LHP SVL
+        LEFT JOIN Lop_Hoc_Phan LHP on LHP.ID_DSMH = SVL.ID_DSMH and LHP.NAM_HOC = SVL.NAM and LHP.HOC_KY = SVL.HK
+        LEFT JOIN MonHoc MH on MH.ID = LHP.ID_MONHOC
+        LEFT JOIN Nganh N on N.ID = MH.ID_NGANH
+        LEFT JOIN Khoa K on K.ID = N.ID_KHOA WHERE SVL.HK='{$params[1]}' AND SVL.NAM='{$params[0]}'
+        AND MSSV='{$_SESSION["user"]["MSSV"]}'
+        WUT;
+
+        $data = $model->getData($query);
+
+        $total = 0;
+        $totalTC = 0;
+        foreach ($data as $index => $item) {
+            $total += $item["TIN_CHI"] * 350000;
+            $totalTC += $item["TIN_CHI"];
+        }
+
+        $query = <<<WUT
+        INSERT INTO HocPhi(TIEN_HOC_PHI, TONG_TIN_CHI, ID_HINH_THUC, ID_TRANG_THAI, MSSV)
+        VALUES ({$total}, {$totalTC}, 1, 1, '{$_SESSION["user"]["MSSV"]}')
+        WUT;
+        $model->update($query);
+        header("Location: /Home");
+    }
+
+    function EditSinhVien() {
+        $params[0] = $_SESSION["user"]["MSSV"];
+        $model = $this->model("SinhVienModel");
+
+        if (isset($_GET["MSSV"])) {
+            $model->replace($_GET["MSSV"], $_GET["HO_TEN"], $_GET["EMAIL"], $_GET["PHONE"], $_GET["ID_LOP"], $_GET["NAM_BAT_DAU"], $_GET["SO_THE_NH"]);
+            header("Location: /Home/Home");
+        }
+
+        $lopModel = $this->model("LopModel");
+        $lopData = $lopModel->getID();
+
+
+        if (!isset($params[0])) {
+            $this->view($this->editTemplate, [
+                "Title" => "Thêm sinh viên",
+                "lop" => $lopData,
+            ]);
+            return;
+        }
+
+        $data = $model->get($params[0])[0];
+        array_unshift($lopData, [
+            "ID" => $data["ID_LOP"]
+        ]);
+
+        $lopData = array_unique($lopData, SORT_REGULAR);
+
+        $this->view($this->editTemplate, [
+            "Title" => "Chỉnh sinh viên",
+            "sinhVien" => $data,
+            "lop" => $lopData,
+        ]);
+
+    }
+
+    function TYC() {
+        try {
+            if (isset($_GET["MMH"])) {
+                $model = $this->model("YCModel");
+                $model->replace($_GET["MMH"], $_SESSION["user"]["MSSV"]);
+            }
+        }
+        catch (Exception) {
+
+        }
+
+        header("Location: /Home/DKMH");
     }
 
 }

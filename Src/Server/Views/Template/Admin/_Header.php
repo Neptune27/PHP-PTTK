@@ -38,23 +38,10 @@
                         Quản lý học phần<span class="arrow"></span>
                     </button>
                     <ul class="dropdown" id="dropdown2">
-                        <li><a href="/Admin/AddSongPage">Lớp học phần</a></li>
-                        <li><a href="/Admin/AddSongPage">Khoa</a></li>
-                        <li><a href="/Admin/AddSongPage">Lớp</a></li>
-                        <li><a href="/Admin/AddSongPage">Môn học</a></li>
-                        <li><a href="/Admin/AddSongPage">Giáo viên</a></li>
-                        <li><a href="/Admin/AddSongPage">Sinh Viên</a></li>
+                        <li><a href="/Admin/LopHocPhan">Lớp học phần</a></li>
+                        <li><a href="/Admin/TKB">Thời khóa biểu</a></li>
+                        <li><a href="/Admin/YCMM">Yêu cầu mở lớp</a></li>
                     </ul>
-                </li>
-                <li>
-                    <a href="/Admin/Playlist"
-                       type="button"
-                       aria-haspopup="true"
-                       aria-expanded="true"
-                       aria-controls="dropdown1"
-                    >
-                        Quản lý lớp học phần
-                    </a>
                 </li>
                 <li>
                     <a href="/Admin/Payment"

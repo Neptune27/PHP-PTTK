@@ -13,9 +13,9 @@ if (!isset($data)) {
             <form id="signInForm" class="p-4 needs-validation">
 
                 <div class="mt-4 has-validation">
-                    <label for="songName" class="h5">Mã Ngành</label>
+                    <label for="songName" class="h5">Mã ngành</label>
                     <input type="text" name="ID" class="form-control flex-fill mb-0"
-                           placeholder="ID" id="songName" value="<?php
+                           placeholder="Mã ngành" id="songName" value="<?php
                         if (isset($data["nganh"])) {
                             echo $data["nganh"]["ID"];
                         }

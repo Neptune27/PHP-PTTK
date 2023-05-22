@@ -24,7 +24,7 @@
                 </li>
 
                 <li>
-                    <a href="/" type="button" aria-haspopup="true" aria-expanded="true" aria-controls="dropdown1">
+                    <a href="/Home/HocPhi" type="button" aria-haspopup="true" aria-expanded="true" aria-controls="dropdown1">
                         Thanh toán
                     </a>
                 </li>
@@ -43,7 +43,7 @@
                     <span class="arrow"></span>
                     </button>
                     <ul class="dropdown" id="dropdown2">
-                        <li><a href="/Home/Signout">Thông tin tài khoản</a></li>
+                        <li><a href="/Home/EditSinhVien">Thông tin tài khoản</a></li>
                         <li><a href="/Home/Signout">Đăng xuất</a></li>
                     </ul>
                 </li>

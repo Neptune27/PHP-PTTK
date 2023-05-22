@@ -11,6 +11,81 @@ class AdminController extends Controller
         $this->view(self::$defaultTemplate, []);
     }
 
+    function YCMM(): void {
+        $q = $_GET["q"] ?? "";
+        $model = $this->model("YCModel");
+        $data = $model->get($q);
+        foreach ($data as $index => $item) {
+            $canDelete = $model->canDelete($data[$index]["ID_MON_HOC"]);
+            $data[$index]+= [
+                "CAN_DELETE" => $canDelete
+            ];
+        }
+
+        $this->view(self::$defaultTemplate,[
+            "data" => $data,
+        ]);
+    }
+
+    function DeleteYCMM($params): void {
+        $id = $params[0];
+        $model = $this->model("YCModel");
+        $model->delete($id);
+        header("Location: /Admin/YCMM");
+    }
+
+
+    function Payment(): void {
+        $q = $_GET["q"] ?? "";
+        $model = $this->model("PaymentModel");
+        $data = $model->get($q);
+        foreach ($data as $index => $item) {
+            $canDelete = $model->canDelete($data[$index]["ID"]);
+            $data[$index]+= [
+                "CAN_DELETE" => $canDelete
+            ];
+        }
+
+
+        $this->view(self::$defaultTemplate,[
+            "data" => $data,
+        ]);
+    }
+
+    function EditPayment($params) {
+        $model = $this->model("PaymentModel");
+
+        if (isset($_GET["ID"])) {
+            $model->replace($_GET["ID"], $_GET["MSSV"], $_GET["ID_TRANG_THAI"], $_GET["ID_HINH_THUC"], $_GET["TIEN_HOC_PHI"], $_GET["TONG_TIN_CHI"]);
+            header("Location: /Admin/Payment");
+        }
+
+        if (!isset($params[0])) {
+            $this->view(self::$editTemplate, [
+                "Title" => "Thêm thanh toán",
+            ]);
+            return;
+        }
+
+        $data = $model->get($params[0])[0];
+
+
+        $this->view(self::$editTemplate, [
+            "Title" => "Chỉnh thanh toán",
+            "pm" => $data,
+        ]);
+
+    }
+
+    function DeletePayment($params): void {
+        $id = $params[0];
+        $model = $this->model("PaymentModel");
+        $model->delete($params[0]);
+        header("Location: /Admin/Payment");
+    }
+
+
+
 
     function TKB(): void {
         $q = $_GET["q"] ?? "";
@@ -416,7 +491,7 @@ class AdminController extends Controller
         $nganhData = $nganhModel->getID();
         if (!isset($params[0])) {
             $this->view(self::$editTemplate, [
-                "Title" => "Thêm lớp",
+                "Title" => "Thêm môn",
                 "nganh" => $nganhData
             ]);
             return;
@@ -431,7 +506,7 @@ class AdminController extends Controller
 
 //        print_r($nganhData);
         $this->view(self::$editTemplate, [
-            "Title" => "Chỉnh lớp",
+            "Title" => "Chỉnh môn",
             "mon" => $data,
             "nganh" => $nganhData
         ]);
@@ -476,7 +551,7 @@ class AdminController extends Controller
         $nganhData = $nganhModel->getID();
         if (!isset($params[0])) {
             $this->view(self::$editTemplate, [
-                "Title" => "Chỉnh ngành",
+                "Title" => "Thêm lớp",
                 "nganh" => $nganhData
             ]);
             return;
@@ -491,7 +566,7 @@ class AdminController extends Controller
 
 //        print_r($nganhData);
         $this->view(self::$editTemplate, [
-            "Title" => "Chỉnh ngành",
+            "Title" => "Chỉnh lớp",
             "lop" => $data,
             "nganh" => $nganhData
         ]);
@@ -534,7 +609,7 @@ class AdminController extends Controller
 
         if (!isset($params[0])) {
             $this->view(self::$editTemplate, [
-                "Title" => "Chỉnh ngành",
+                "Title" => "Thêm khoa",
             ]);
             return;
         }
@@ -542,7 +617,7 @@ class AdminController extends Controller
         $data = $model->get($params[0])[0];
 
         $this->view(self::$editTemplate, [
-            "Title" => "Chỉnh ngành",
+            "Title" => "Chỉnh khoa",
             "khoa" => $data
         ]);
     }
@@ -585,7 +660,7 @@ class AdminController extends Controller
         $khoaData = $khoaModel->getID();
         if (!isset($params[0])) {
             $this->view(self::$editTemplate, [
-                "Title" => "Chỉnh ngành",
+                "Title" => "Thêm ngành",
                 "khoa" => $khoaData
             ]);
             return;

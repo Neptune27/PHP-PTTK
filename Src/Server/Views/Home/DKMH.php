@@ -1,6 +1,8 @@
-<form>
-    <input id="txtTimKiem" name="ma" type="text">
-    <input onclick="timKiem()" type="submit" value="Tìm Kiếm">
+<form class="input-group">
+    <input class="form-control" placeholder="Mã học phần" id="txtTimKiem" name="ma" type="text">
+    <div class="input-group-append">
+        <input class="btn btn-primary" onclick="timKiem()" type="submit" value="Tìm Kiếm">
+    </div>
 </form>
 
 
@@ -25,7 +27,7 @@
     <tbody>
 
         <?php
-            $t = $data["data"][0]['ID_DSMH'];
+//            $t = $data["data"][0]['ID_DSMH'];
             $countList = array();
 
             // Đếm số lần xuất hiện của ID_DSMH và lưu vào mảng $countList
@@ -180,21 +182,23 @@
     </tbody>
 </table>
 
-<h1>Danh Sach Mon Hoc Da Chon</h1>
-<div>
-    <button onclick="luuDK()">Luu Dang Ky</button>
-    <button onclick="xoaDK()">Xoa</button>
+<h1>Danh sách môn học đã chọn</h1>
+<div class="d-flex flex-row-reverse">
+    <div>
+        <button class="btn btn-primary" onclick="luuDK()">Lưu đăng ký</button>
+        <button class="btn btn-danger" onclick="xoaDK()">Xóa</button>
+    </div>
 </div>
 <table class="table table-hover">
     <thead>
         <tr>
             <th scope="col">#</th>
-            <th scope="col">Ma MH</th>
-            <th scope="col">Ten Mon Hoc</th>
+            <th scope="col">Mã MH</th>
+            <th scope="col">Tên Môn Học</th>
             <th scope="col">NMH</th>
             <th scope="col">STC</th>
-            <th scope="col">Hoc Phi</th>
-            <th scope="col">Trang Thai Mon Hoc</th>
+            <th scope="col">Học Phí</th>
+            <th scope="col">Trạng Thái Môn Học</th>
             <th scope="col"></th>
 
         </tr>
@@ -241,6 +245,17 @@
     </tbody>
 </table>
 
+
+<h1 for="formGroupExampleInput">Yêu cầu mở lớp</h1>
+<form action="/Home/TYC">
+    <div class="input-group mt-4">
+        <input type="text" class="form-control" placeholder="Mã môn học" name="MMH">
+        <div class="input-group-append">
+            <button class="btn btn-outline-secondary" type="submit">Tạo yêu cầu</button>
+        </div>
+
+    </div>
+</form>
 
 
 

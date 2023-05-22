@@ -3,9 +3,28 @@ CREATE DATABASE QLMH;
 USE QLMH;
 -- MySQL dump 10.13  Distrib 8.0.32, for Linux (x86_64)
 --
+-- Host: localhost    Database: QLSV
+-- ------------------------------------------------------
+-- Server version       8.0.32
+
+/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
+/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
+/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
+/*!50503 SET NAMES utf8mb4 */;
+/*!40103 SET @OLD_TIME_ZONE=@@TIME_ZONE */;
+/*!40103 SET TIME_ZONE='+00:00' */;
+/*!40014 SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0 */;
+/*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
+/*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
+/*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
+mysqldump: Got error: 1049: Unknown database 'QLSV' when selecting the database
+sh-4.4# mysqldump -u root -p QLMH
+Enter password:
+-- MySQL dump 10.13  Distrib 8.0.32, for Linux (x86_64)
+--
 -- Host: localhost    Database: QLMH
 -- ------------------------------------------------------
--- Server version	8.0.32
+-- Server version       8.0.32
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -91,7 +110,7 @@ CREATE TABLE `GiaoVien` (
                             KEY `GiaoVien_Nganh_ID_fk` (`ID_NGANH`),
                             CONSTRAINT `GiaoVien_ChucVuGV_ID_fk` FOREIGN KEY (`ID_CHUC_VU`) REFERENCES `ChucVuGV` (`ID`),
                             CONSTRAINT `GiaoVien_Nganh_ID_fk` FOREIGN KEY (`ID_NGANH`) REFERENCES `Nganh` (`ID`)
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -100,7 +119,7 @@ CREATE TABLE `GiaoVien` (
 
 LOCK TABLES `GiaoVien` WRITE;
 /*!40000 ALTER TABLE `GiaoVien` DISABLE KEYS */;
-INSERT INTO `GiaoVien` VALUES (2,'Hong Anh','a@b.c','0123456789','DCT',2);
+INSERT INTO `GiaoVien` VALUES (2,'Hồng Anh','a@b.c','0123456789','DCT',1),(4,'TEST','A@b.c','0123415678','CHU',1);
 /*!40000 ALTER TABLE `GiaoVien` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -115,7 +134,7 @@ CREATE TABLE `HinhThucThanhToan` (
                                      `ID` int NOT NULL AUTO_INCREMENT,
                                      `TEN` varchar(100) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT NULL,
                                      PRIMARY KEY (`ID`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -124,6 +143,7 @@ CREATE TABLE `HinhThucThanhToan` (
 
 LOCK TABLES `HinhThucThanhToan` WRITE;
 /*!40000 ALTER TABLE `HinhThucThanhToan` DISABLE KEYS */;
+INSERT INTO `HinhThucThanhToan` VALUES (1,'Chuyển khoản'),(2,'Trực tiếp'),(3,'Học bổng');
 /*!40000 ALTER TABLE `HinhThucThanhToan` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -159,7 +179,7 @@ DROP TABLE IF EXISTS `HocPhi`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `HocPhi` (
-                          `ID` int NOT NULL,
+                          `ID` int NOT NULL AUTO_INCREMENT,
                           `TIEN_HOC_PHI` int DEFAULT NULL,
                           `TONG_TIN_CHI` int DEFAULT NULL,
                           `ID_HINH_THUC` int DEFAULT NULL,
@@ -172,7 +192,7 @@ CREATE TABLE `HocPhi` (
                           CONSTRAINT `HocPhi_HinhThucThanhToan_ID_fk` FOREIGN KEY (`ID_HINH_THUC`) REFERENCES `HinhThucThanhToan` (`ID`),
                           CONSTRAINT `HocPhi_SinhVien_MSSV_fk` FOREIGN KEY (`MSSV`) REFERENCES `SinhVien` (`MSSV`),
                           CONSTRAINT `HocPhi_TrangThaiHoaDon_ID_fk` FOREIGN KEY (`ID_TRANG_THAI`) REFERENCES `TrangThaiHoaDon` (`ID`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=13 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -181,6 +201,7 @@ CREATE TABLE `HocPhi` (
 
 LOCK TABLES `HocPhi` WRITE;
 /*!40000 ALTER TABLE `HocPhi` DISABLE KEYS */;
+INSERT INTO `HocPhi` VALUES (12,1050000,3,1,3,'3121560004');
 /*!40000 ALTER TABLE `HocPhi` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -205,7 +226,7 @@ CREATE TABLE `Khoa` (
 
 LOCK TABLES `Khoa` WRITE;
 /*!40000 ALTER TABLE `Khoa` DISABLE KEYS */;
-INSERT INTO `Khoa` VALUES ('CHU','Chung',360000),('CNTT','Công nghệ thông itn',540000);
+INSERT INTO `Khoa` VALUES ('CHU','Chung',360000),('CNTT','Công nghệ thông itn',540000),('TEST','TEST',3000);
 /*!40000 ALTER TABLE `Khoa` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -232,7 +253,7 @@ CREATE TABLE `LopHoc` (
 
 LOCK TABLES `LopHoc` WRITE;
 /*!40000 ALTER TABLE `LopHoc` DISABLE KEYS */;
-INSERT INTO `LopHoc` VALUES ('DKP1212','DKP1212','DKP');
+INSERT INTO `LopHoc` VALUES ('DKP1212','DKP1212','DKP'),('TEST','TEST','CHU');
 /*!40000 ALTER TABLE `LopHoc` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -262,7 +283,7 @@ CREATE TABLE `Lop_Hoc_Phan` (
 
 LOCK TABLES `Lop_Hoc_Phan` WRITE;
 /*!40000 ALTER TABLE `Lop_Hoc_Phan` DISABLE KEYS */;
-INSERT INTO `Lop_Hoc_Phan` VALUES ('841022_8','841022',30,1,2023,'2022-05-09'),('841107_42','841107',60,2,2023,'2023-02-06');
+INSERT INTO `Lop_Hoc_Phan` VALUES ('841022_1','841022',30,3,2023,'2022-05-09'),('841022_2','841022',30,3,2023,'2022-05-09'),('841022_3','841022',30,3,2023,'2022-05-09'),('841022_8','841022',30,1,2023,'2022-05-09'),('841107_41','841107',10,3,2023,'2023-05-22'),('841107_42','841107',60,2,2023,'2023-02-06'),('841107_42','841107',0,3,2023,'2023-02-06'),('841401_1','841401',50,3,2023,'2022-05-09'),('841401_2','841401',60,3,2023,'2023-05-21'),('841401_45','841401',35,3,2023,'2023-05-22'),('841402_7','841402',32,3,2023,'2023-05-22'),('861301_1','861301',120,3,2023,'2022-05-09'),('861301_2','861301',120,3,2023,'2022-05-09'),('861302_1','861302',0,3,2023,'2022-05-09'),('861302_3','861302',0,3,2023,'2022-05-09'),('861303_4','861303',120,3,2023,'2022-05-09'),('861303_6','861303',120,3,2023,'2022-05-09');
 /*!40000 ALTER TABLE `Lop_Hoc_Phan` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -317,6 +338,7 @@ CREATE TABLE `MonTienQuyet` (
 
 LOCK TABLES `MonTienQuyet` WRITE;
 /*!40000 ALTER TABLE `MonTienQuyet` DISABLE KEYS */;
+INSERT INTO `MonTienQuyet` VALUES ('841303','841109'),('841406','841401'),('861302','861301'),('861303','861302'),('866102','866101');
 /*!40000 ALTER TABLE `MonTienQuyet` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -375,7 +397,7 @@ CREATE TABLE `SinhVien` (
 
 LOCK TABLES `SinhVien` WRITE;
 /*!40000 ALTER TABLE `SinhVien` DISABLE KEYS */;
-INSERT INTO `SinhVien` VALUES ('3121560004','Võ Minh Trí','a@b.c','0123456789','DKP1212','a',2021,NULL);
+INSERT INTO `SinhVien` VALUES ('3121560003','TEST','A@b.c','0123415678','TEST','123',2021,'0123456789'),('3121560004','Võ Minh Trí','a@b.c','0123456785','DKP1212','123',2021,'079236547');
 /*!40000 ALTER TABLE `SinhVien` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -459,6 +481,7 @@ CREATE TABLE `SinhVien_MonHocTamThoi` (
 
 LOCK TABLES `SinhVien_MonHocTamThoi` WRITE;
 /*!40000 ALTER TABLE `SinhVien_MonHocTamThoi` DISABLE KEYS */;
+INSERT INTO `SinhVien_MonHocTamThoi` VALUES ('3121560004','841022_3');
 /*!40000 ALTER TABLE `SinhVien_MonHocTamThoi` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -493,7 +516,7 @@ CREATE TABLE `ThoiGianMonHoc` (
 
 LOCK TABLES `ThoiGianMonHoc` WRITE;
 /*!40000 ALTER TABLE `ThoiGianMonHoc` DISABLE KEYS */;
-INSERT INTO `ThoiGianMonHoc` VALUES ('841022_8',9,'C.A110',10,'123456789012345',2,1,2023,3),('841022_8',4,'C.E305',5,'123456789012345',2,1,2023,5),('841107_42',1,'C.A110',2,'123456789012345',2,2,2023,2),('841107_42',3,'C.A510',5,'123456789012345',2,2,2023,2);
+INSERT INTO `ThoiGianMonHoc` VALUES ('841022_1',6,'C.A305',10,'12345678912345',2,3,2023,4),('841022_2',3,'C.A305',5,'12345678912345',2,3,2023,6),('841022_2',6,'C.A305',7,'12345678912345',2,3,2023,6),('841022_3',1,'C.A305',5,'12345678912345',2,3,2023,5),('841022_8',9,'C.A110',10,'123456789012345',2,1,2023,3),('841022_8',4,'C.E305',5,'123456789012345',2,1,2023,5),('841107_42',1,'C.A110',2,'123456789012345',2,2,2023,2),('841107_42',1,'C.A110',2,'123456789012345',2,3,2023,2),('841107_42',3,'C.A510',5,'123456789012345',2,2,2023,2),('841107_42',3,'C.A510',5,'123456789012345',2,3,2023,2),('841401_1',6,'C.A305',10,'12345678912345',2,3,2023,6),('841401_2',1,'C.A123',3,'123456',2,3,2023,3),('841402_7',2,'C.A123',5,'123453',4,3,2023,4),('861301_1',3,'C.B201',5,'12345678912345',2,3,2023,3),('861301_2',6,'C.B201',7,'12345678912345',2,3,2023,3),('861302_3',8,'C.B201',9,'12345678912345',2,3,2023,3),('861303_4',1,'C.B201',2,'12345678912345',2,3,2023,3);
 /*!40000 ALTER TABLE `ThoiGianMonHoc` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -508,7 +531,7 @@ CREATE TABLE `TrangThaiHoaDon` (
                                    `ID` int NOT NULL AUTO_INCREMENT,
                                    `TEN` varchar(100) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT NULL,
                                    PRIMARY KEY (`ID`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -517,6 +540,7 @@ CREATE TABLE `TrangThaiHoaDon` (
 
 LOCK TABLES `TrangThaiHoaDon` WRITE;
 /*!40000 ALTER TABLE `TrangThaiHoaDon` DISABLE KEYS */;
+INSERT INTO `TrangThaiHoaDon` VALUES (1,'Đang xử lý'),(2,'Hủy'),(3,'Xác nhận');
 /*!40000 ALTER TABLE `TrangThaiHoaDon` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -536,7 +560,7 @@ CREATE TABLE `YCMoThemSL` (
                               KEY `YCMoThemSL_SinhVien_MSSV_fk` (`MSSV`),
                               CONSTRAINT `YCMoThemSL_MonHoc_ID_fk` FOREIGN KEY (`ID_MON_HOC`) REFERENCES `MonHoc` (`ID`),
                               CONSTRAINT `YCMoThemSL_SinhVien_MSSV_fk` FOREIGN KEY (`MSSV`) REFERENCES `SinhVien` (`MSSV`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -545,6 +569,7 @@ CREATE TABLE `YCMoThemSL` (
 
 LOCK TABLES `YCMoThemSL` WRITE;
 /*!40000 ALTER TABLE `YCMoThemSL` DISABLE KEYS */;
+INSERT INTO `YCMoThemSL` VALUES (7,'841401','3121560004');
 /*!40000 ALTER TABLE `YCMoThemSL` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
@@ -557,4 +582,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2023-05-17 16:45:15
+-- Dump completed on 2023-05-22  5:31:05
